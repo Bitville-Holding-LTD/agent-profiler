@@ -13,6 +13,7 @@
 
 import { insertProfilingData } from "../database/queries";
 import { PhpPayloadSchema, PostgresPayloadSchema } from "../middleware/validation";
+import { forwardInsertedData } from "../graylog/forwarder.ts";
 
 let udpSocket: ReturnType<typeof Bun.udpSocket> | null = null;
 
@@ -57,13 +58,25 @@ export async function startUdpServer(port: number): Promise<void> {
               return;
             }
 
-            insertProfilingData({
+            const rowId = insertProfilingData({
               correlation_id: result.data.correlation_id || `udp-${Date.now()}`,
               project: result.data.project,
               source: "postgres_agent",
               timestamp: Math.floor(result.data.timestamp),
               duration_ms: null,
               payload: JSON.stringify(result.data.data),
+            });
+
+            // Fire-and-forget async forward to Graylog
+            forwardInsertedData(rowId, {
+              correlation_id: result.data.correlation_id || `udp-pg-${Date.now()}`,
+              project: result.data.project,
+              source: "postgres_agent",
+              timestamp: Math.floor(result.data.timestamp),
+              duration_ms: null,
+              payload: JSON.stringify(result.data.data),
+            }).catch(err => {
+              console.error(`[UDP] Graylog forward failed for row ${rowId}:`, err);
             });
           } else {
             // Default: PHP agent
@@ -74,13 +87,25 @@ export async function startUdpServer(port: number): Promise<void> {
               return;
             }
 
-            insertProfilingData({
+            const rowId = insertProfilingData({
               correlation_id: result.data.correlation_id,
               project: result.data.project,
               source: "php_agent",
               timestamp: Math.floor(result.data.timestamp),
               duration_ms: result.data.elapsed_ms,
               payload: JSON.stringify(payload),
+            });
+
+            // Fire-and-forget async forward to Graylog
+            forwardInsertedData(rowId, {
+              correlation_id: result.data.correlation_id || `udp-php-${Date.now()}`,
+              project: result.data.project,
+              source: "php_agent",
+              timestamp: Math.floor(result.data.timestamp),
+              duration_ms: result.data.elapsed_ms,
+              payload: JSON.stringify(payload),
+            }).catch(err => {
+              console.error(`[UDP] Graylog forward failed for row ${rowId}:`, err);
             });
           }
         } catch (error) {

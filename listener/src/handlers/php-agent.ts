@@ -8,6 +8,7 @@
 import { authenticateRequest } from "../middleware/auth.ts";
 import { PhpPayloadSchema, type PhpPayload } from "../middleware/validation.ts";
 import { insertProfilingData } from "../database/queries.ts";
+import { forwardInsertedData } from "../graylog/forwarder.ts";
 
 /**
  * Handle PHP agent ingestion request
@@ -88,6 +89,19 @@ export async function handlePhpAgent(req: Request): Promise<Response> {
       timestamp: payload.timestamp,
       duration_ms: payload.timing?.duration_ms ?? payload.elapsed_ms,
       payload: JSON.stringify(payload),
+    });
+
+    // Fire-and-forget async forward to Graylog (don't await)
+    forwardInsertedData(rowId, {
+      correlation_id: payload.correlation_id,
+      project: auth.projectKey,
+      source: "php_agent",
+      timestamp: payload.timestamp,
+      duration_ms: payload.timing?.duration_ms ?? payload.elapsed_ms,
+      payload: JSON.stringify(payload),
+    }).catch(err => {
+      // Log error but don't fail the request
+      console.error(`[PHP Agent] Graylog forward failed for row ${rowId}:`, err);
     });
 
     console.log(

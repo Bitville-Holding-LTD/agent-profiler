@@ -11,6 +11,7 @@
 import { authenticateRequest } from "../middleware/auth.ts";
 import { PostgresPayloadSchema, type PostgresPayload } from "../middleware/validation.ts";
 import { insertProfilingData } from "../database/queries.ts";
+import { forwardInsertedData } from "../graylog/forwarder.ts";
 
 /**
  * Handle Postgres agent ingestion request
@@ -91,6 +92,18 @@ export async function handlePostgresAgent(req: Request): Promise<Response> {
       timestamp: payload.timestamp,
       duration_ms: null,  // DB metrics don't have request duration
       payload: JSON.stringify(payload),
+    });
+
+    // Fire-and-forget async forward to Graylog (don't await)
+    forwardInsertedData(rowId, {
+      correlation_id: payload.correlation_id || `pg-${Date.now()}`,
+      project: auth.projectKey,
+      source: "postgres_agent",
+      timestamp: payload.timestamp,
+      duration_ms: null,
+      payload: JSON.stringify(payload),
+    }).catch(err => {
+      console.error(`[Postgres Agent] Graylog forward failed for row ${rowId}:`, err);
     });
 
     console.log(
