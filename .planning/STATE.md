@@ -16,7 +16,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 | Phase | Status | Plans | Progress | Commits |
 |-------|--------|-------|----------|---------|
-| 1 - PHP Agent Core Instrumentation & Safety | ◆ In Progress | 2/6 | 33% | b79a3dc, ef56a13, 37e4d71 |
+| 1 - PHP Agent Core Instrumentation & Safety | ◆ In Progress | 4/6 | 67% | def8a37, b79a3dc, ef56a13 |
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ○ Pending | 0/? | 0% | - |
 | 3 - Central Listener Data Reception & Storage | ○ Pending | 0/? | 0% | - |
 | 4 - Graylog Integration & Forwarding | ○ Pending | 0/? | 0% | - |
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Legend:** ○ Pending | ◆ In Progress | ✓ Complete
 
-**Phase 1 Progress:** ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░█████████████████████████████████████████████████ 33% (2/6 plans)
+**Phase 1 Progress:** ░░░░░░░░░░░░░░░░░░░░░░░░██████████████████████████████████████████████████████████████████ 67% (4/6 plans)
 
 ## Milestone Overview
 
@@ -48,13 +48,15 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Requirements:** 11 requirements (PHP-01 to PHP-08, COMM-01 to COMM-03)
 
-**Progress:** 2/6 plans complete (33%)
+**Progress:** 4/6 plans complete (67%)
 
 **Completed:**
 - ✅ Plan 01-01: Configuration & Correlation Foundation
 - ✅ Plan 01-03: SQL Capture Module
+- ✅ Plan 01-04: Socket Transmission Layer
+- ✅ Plan 01-05: Request Metadata Collector
 
-**Next step:** Execute plan 01-02 (XHProf integration)
+**Next step:** Execute plan 01-02 (XHProf integration) and 01-06 (Integration layer)
 
 ## Active Work
 
@@ -66,6 +68,7 @@ None currently.
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 01-04 - Socket Transmission Layer (3 tasks, 2min 12sec)
 - 2026-01-27: Completed plan 01-03 - SQL Capture Module (1 task, 1min 47sec)
 - 2026-01-27: Completed plan 01-01 - Configuration & Correlation Foundation (3 tasks, 2min 17sec)
 - 2026-01-27: Roadmap created (7 phases)
@@ -77,6 +80,10 @@ None currently.
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Unix datagram sockets (SOCK_DGRAM) | Fire-and-forget without connection overhead | 01-04 | 2026-01-27 |
+| SO_SNDTIMEO at socket level | Guaranteed 50ms timeout enforced by kernel | 01-04 | 2026-01-27 |
+| Atomic disk writes (tempnam+rename) | Prevent partial writes if buffer fallback occurs | 01-04 | 2026-01-27 |
+| Large data truncation strategy | XHProf top 50, SQL top 100 to fit 64KB datagram limit | 01-04 | 2026-01-27 |
 | Phalcon Events Manager for SQL capture | Non-invasive hook pattern, fail gracefully | 01-03 | 2026-01-27 |
 | 500 query limit per request | Prevent memory exhaustion on query-heavy pages | 01-03 | 2026-01-27 |
 | 5-frame stack traces with no args | Privacy + performance balance | 01-03 | 2026-01-27 |
@@ -92,4 +99,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T17:24:41Z - Completed plan 01-03 (SQL Capture Module)
+Last activity: 2026-01-27T17:24:58Z - Completed plan 01-04 (Socket Transmission Layer)
