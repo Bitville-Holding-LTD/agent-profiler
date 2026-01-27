@@ -72,7 +72,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Listener Server - Graylog Integration
 
 - [ ] **GELF-01**: Forward all received data to Graylog in GELF format (TCP)
-- [ ] **GELF-02**: Use graylog2/gelf-php 1.7.x for PHP 7.4 compatibility
+- [ ] **GELF-02**: Use gelf-pro library for Bun/Node.js GELF compatibility
 - [ ] **GELF-03**: Implement circuit breaker for Graylog unavailability
 - [ ] **GELF-04**: Buffer in SQLite during Graylog outages and replay when available
 - [ ] **GELF-05**: Include project identifier in all GELF messages
