@@ -17,7 +17,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | Phase | Status | Plans | Progress | Commits |
 |-------|--------|-------|----------|---------|
 | 1 - PHP Agent Core Instrumentation & Safety | ✓ Complete | 6/6 | 100% | a2b8ae0, 713bf51, 980bb51, def8a37 |
-| 2 - PHP Agent Daemon Architecture & Lifecycle | ◆ In Progress | 3/? | ~60% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67 |
+| 2 - PHP Agent Daemon Architecture & Lifecycle | ◆ In Progress | 4/? | ~80% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
 | 3 - Central Listener Data Reception & Storage | ○ Pending | 0/? | 0% | - |
 | 4 - Graylog Integration & Forwarding | ○ Pending | 0/? | 0% | - |
 | 5 - Postgres Agent Database Monitoring | ○ Pending | 0/? | 0% | - |
@@ -46,12 +46,13 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Goal:** Background daemon processes buffered profiling data and forwards to central listener
 
-**Status:** In Progress - Plans 02-01, 02-02, and 02-03 complete
+**Status:** In Progress - Plans 02-01, 02-02, 02-03, and 02-04 complete
 
 **Progress:**
 - ✅ Plan 02-01: Daemon Foundation (ReactPHP event loop, socket server, worker lifecycle)
 - ✅ Plan 02-02: Buffer Management (memory buffer, disk overflow, FIFO replay)
 - ✅ Plan 02-03: Circuit Breaker & Transmitter (failure tracking, HTTP forwarding)
+- ✅ Plan 02-04: Daemon Integration & Process Management (health check, periodic transmission, supervisord/systemd)
 
 **Phase 1 (COMPLETE):** PHP Agent Core Instrumentation & Safety
 - ✅ All 11 requirements delivered (PHP-01 to PHP-08, COMM-01 to COMM-03)
@@ -67,16 +68,17 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 ## Active Work
 
-**Phase 2 - Plan 02-03 COMPLETE:** Circuit breaker pattern with persistent state and HTTP transmitter for central listener forwarding.
+**Phase 2 - Plan 02-04 COMPLETE:** Daemon integration with health check, periodic transmission, and process management configs.
 
-**Next:** Plan 02-04 - Socket protocol bridge (SOCK_DGRAM to SOCK_STREAM).
+**Next:** Determine if Phase 2 has additional plans, or ready for Phase 3 (Central Listener).
 
 ## Blockers/Concerns
 
-**Socket type compatibility (Plan 02-04):** Phase 1 listener.php uses SOCK_DGRAM sockets, but daemon uses SOCK_STREAM (ReactPHP requirement). Plan 02-04 should bridge or update socket communication.
+None - Phase 2 daemon architecture complete and ready for central listener implementation.
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 02-04 - Daemon Integration & Process Management (4 tasks, 3min 39sec)
 - 2026-01-27: Completed plan 02-03 - Circuit Breaker & Transmitter (2 tasks, 2min)
 - 2026-01-27: Completed plan 02-02 - Buffer Management (2 tasks, 1min 58sec)
 - 2026-01-27: Completed plan 02-01 - Daemon Foundation (3 tasks, 2min 50sec)
@@ -96,6 +98,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| 30 second graceful shutdown timeout | Allows buffer flush to complete before forced termination | 02-04 | 2026-01-27 |
+| Newline-delimited JSON for stream protocol | Standard stream protocol for line-based message framing | 02-04 | 2026-01-27 |
+| SOCK_STREAM instead of SOCK_DGRAM | Required for ReactPHP UnixServer compatibility | 02-04 | 2026-01-27 |
+| 5 second flush interval for transmission | Balances transmission frequency with request batching | 02-04 | 2026-01-27 |
+| Health check port 9191 on localhost only | Security: monitoring tools can access but not exposed publicly | 02-04 | 2026-01-27 |
 | Circuit breaker opens after 5 consecutive failures | Balance between sensitivity and false positives | 02-03 | 2026-01-27 |
 | Circuit breaker retry timeout: 60 seconds | Allow time for central listener recovery without excessive delay | 02-03 | 2026-01-27 |
 | Circuit breaker state persists to disk | Prevents retry storm after daemon restart when listener still down | 02-03 | 2026-01-27 |
@@ -141,4 +148,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T18:26:53Z - Completed plan 02-03 (Circuit Breaker & Transmitter)
+Last activity: 2026-01-27T18:32:54Z - Completed plan 02-04 (Daemon Integration & Process Management)
