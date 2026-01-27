@@ -18,6 +18,16 @@ This roadmap delivers a production-grade APM system for investigating PHP 7.4 lo
 
 **Requirements:** PHP-01, PHP-02, PHP-03, PHP-04, PHP-05, PHP-06, PHP-07, PHP-08, COMM-01, COMM-02, COMM-03
 
+**Plans:** 6 plans
+
+Plans:
+- [ ] 01-01-PLAN.md - Configuration system and correlation ID generator
+- [ ] 01-02-PLAN.md - XHProf integration for function-level profiling
+- [ ] 01-03-PLAN.md - SQL query capture via Phalcon events
+- [ ] 01-04-PLAN.md - Socket transmission with disk buffer fallback
+- [ ] 01-05-PLAN.md - Request metadata collection
+- [ ] 01-06-PLAN.md - listener.php orchestration and integration
+
 **Success Criteria:**
 1. Profiling data is captured only for PHP requests exceeding 500ms threshold
 2. Each profiled request has unique correlation ID for database query matching
@@ -259,4 +269,4 @@ This roadmap delivers a production-grade APM system for investigating PHP 7.4 lo
 
 ---
 
-*Last updated: 2026-01-27 after roadmap creation*
+*Last updated: 2026-01-27 after Phase 1 planning*
