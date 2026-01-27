@@ -17,7 +17,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | Phase | Status | Plans | Progress | Commits |
 |-------|--------|-------|----------|---------|
 | 1 - PHP Agent Core Instrumentation & Safety | ✓ Complete | 6/6 | 100% | a2b8ae0, 713bf51, 980bb51, def8a37 |
-| 2 - PHP Agent Daemon Architecture & Lifecycle | ○ Pending | 0/? | 0% | - |
+| 2 - PHP Agent Daemon Architecture & Lifecycle | ◆ In Progress | 1/? | ~20% | 7928601, deee093, 0b74996 |
 | 3 - Central Listener Data Reception & Storage | ○ Pending | 0/? | 0% | - |
 | 4 - Graylog Integration & Forwarding | ○ Pending | 0/? | 0% | - |
 | 5 - Postgres Agent Database Monitoring | ○ Pending | 0/? | 0% | - |
@@ -32,8 +32,8 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Total phases:** 7
 **Completed:** 1
-**In progress:** 0
-**Remaining:** 6
+**In progress:** 1
+**Remaining:** 5
 
 **Requirements coverage:**
 - Total v1 requirements: 48
@@ -46,7 +46,10 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Goal:** Background daemon processes buffered profiling data and forwards to central listener
 
-**Status:** Pending - awaiting phase planning
+**Status:** In Progress - Plan 02-01 complete (Daemon Foundation)
+
+**Progress:**
+- ✅ Plan 02-01: Daemon Foundation (ReactPHP event loop, socket server, worker lifecycle)
 
 **Phase 1 (COMPLETE):** PHP Agent Core Instrumentation & Safety
 - ✅ All 11 requirements delivered (PHP-01 to PHP-08, COMM-01 to COMM-03)
@@ -62,14 +65,17 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 ## Active Work
 
-Phase 1 complete. Ready for Phase 2 planning.
+**Phase 2 - Plan 02-01 COMPLETE:** Daemon foundation with ReactPHP event loop, Unix socket server, and worker lifecycle management.
+
+**Next:** Plan 02-02 - Buffer management implementation.
 
 ## Blockers/Concerns
 
-None currently.
+**Socket type compatibility (Plan 02-04):** Phase 1 listener.php uses SOCK_DGRAM sockets, but daemon uses SOCK_STREAM (ReactPHP requirement). Plan 02-04 should bridge or update socket communication.
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 02-01 - Daemon Foundation (3 tasks, 2min 50sec)
 - 2026-01-27: **🎉 PHASE 1 COMPLETE** - PHP Agent Core Instrumentation & Safety (6/6 plans, 11 requirements)
 - 2026-01-27: Completed plan 01-06 - listener.php Orchestration (2 tasks, 21min)
 - 2026-01-27: Completed plan 01-05 - Request Metadata Collector (3 tasks, 2min 24sec)
@@ -86,6 +92,12 @@ None currently.
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| ReactPHP event loop for daemon | Industry standard for PHP long-running processes | 02-01 | 2026-01-27 |
+| SOCK_STREAM sockets for ReactPHP daemon | ReactPHP UnixServer requirement (Plan 02-04 will bridge DGRAM) | 02-01 | 2026-01-27 |
+| Worker restart at 256MB or 1000 requests | Prevents memory leaks in long-running daemon | 02-01 | 2026-01-27 |
+| Garbage collection every 100 requests | Balance between overhead and memory management | 02-01 | 2026-01-27 |
+| SIGTERM/SIGHUP signal handling | Standard Unix daemon conventions | 02-01 | 2026-01-27 |
+| Periodic timers: 1s shutdown, 60s stats | Responsive without tight loop, visibility without spam | 02-01 | 2026-01-27 |
 | Shutdown function with set_time_limit(0) | Prevent profiler timeout during collection | 01-06 | 2026-01-27 |
 | Global variables for component storage | Enable access from shutdown function scope | 01-06 | 2026-01-27 |
 | BITVILLE_APM_PROJECT constant | Manual project identification per deployment | 01-06 | 2026-01-27 |
@@ -117,4 +129,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T17:50:18Z - **Phase 1 Complete** (listener.php Orchestration)
+Last activity: 2026-01-27T18:22:47Z - Completed plan 02-01 (Daemon Foundation)
