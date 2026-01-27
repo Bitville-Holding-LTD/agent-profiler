@@ -9,20 +9,20 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### PHP Agent - Core Instrumentation
 
-- [ ] **PHP-01**: Capture profiling data only for requests exceeding 500ms threshold
-- [ ] **PHP-02**: Generate unique correlation ID (UUID v4) at request start
-- [ ] **PHP-03**: Integrate XHProf for function-level timing breakdown
-- [ ] **PHP-04**: Collect request metadata (URL, method, headers, GET/POST variables, response time)
-- [ ] **PHP-05**: Collect memory usage per function (peak memory, allocations)
-- [ ] **PHP-06**: Capture all SQL queries executed during request with timing
-- [ ] **PHP-07**: Support configurable on/off toggles for each profiling feature via settings file
-- [ ] **PHP-08**: Inject project identifier (manual configuration in listener.php)
+- [x] **PHP-01**: Capture profiling data only for requests exceeding 500ms threshold
+- [x] **PHP-02**: Generate unique correlation ID (UUID v4) at request start
+- [x] **PHP-03**: Integrate XHProf for function-level timing breakdown
+- [x] **PHP-04**: Collect request metadata (URL, method, headers, GET/POST variables, response time)
+- [x] **PHP-05**: Collect memory usage per function (peak memory, allocations)
+- [x] **PHP-06**: Capture all SQL queries executed during request with timing
+- [x] **PHP-07**: Support configurable on/off toggles for each profiling feature via settings file
+- [x] **PHP-08**: Inject project identifier (manual configuration in listener.php)
 
 ### PHP Agent - Communication & Safety
 
-- [ ] **COMM-01**: Send profiling data to listener daemon within 50ms timeout
-- [ ] **COMM-02**: Use non-blocking sockets with SO_SNDTIMEO at socket level
-- [ ] **COMM-03**: Skip silently if listener unreachable (never cause request failure)
+- [x] **COMM-01**: Send profiling data to listener daemon within 50ms timeout
+- [x] **COMM-02**: Use non-blocking sockets with SO_SNDTIMEO at socket level
+- [x] **COMM-03**: Skip silently if listener unreachable (never cause request failure)
 - [ ] **COMM-04**: Implement circuit breaker pattern (auto-disable after consecutive failures)
 - [ ] **COMM-05**: Run as background daemon process on each PHP web server
 - [ ] **COMM-06**: Provide listener.php include file for PHP app integration
