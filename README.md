@@ -282,6 +282,12 @@ cat /var/lib/bitville-apm/circuit_breaker_state.json
 tail -f /var/log/bitville-apm/daemon.log
 ```
 
+## Why This Exists
+
+We needed to solve performance issues in our PHP applications and weren't satisfied with expensive commercial APM solutions. This is our attempt at solving simple problems that have large effects - capturing the right data at the right time without breaking the bank or adding complexity.
+
+If you find this helpful for your own performance debugging, feel free to use it. We're sharing it publicly in case others face similar challenges.
+
 ## Development
 
 ### Running Tests
@@ -290,7 +296,7 @@ Tests are planned for Phase 7. Current development focuses on core functionality
 
 ### Contributing
 
-This is currently a private project for Bitville infrastructure. Contribution guidelines will be established as the project matures.
+This is an open-source project. If you find it useful and want to contribute improvements, bug fixes, or documentation, contributions are welcome. This project is actively being developed to solve real production performance issues.
 
 ### Development Roadmap
 
@@ -345,7 +351,7 @@ If the circuit breaker is open (profiling disabled due to failures):
 
 ## License
 
-Proprietary - Bitville/Galaxy Projects
+Open Source - Use freely if you find it helpful for your own performance debugging needs.
 
 ## Contact
 
