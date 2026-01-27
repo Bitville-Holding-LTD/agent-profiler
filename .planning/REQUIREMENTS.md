@@ -23,19 +23,19 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **COMM-01**: Send profiling data to listener daemon within 50ms timeout
 - [x] **COMM-02**: Use non-blocking sockets with SO_SNDTIMEO at socket level
 - [x] **COMM-03**: Skip silently if listener unreachable (never cause request failure)
-- [ ] **COMM-04**: Implement circuit breaker pattern (auto-disable after consecutive failures)
-- [ ] **COMM-05**: Run as background daemon process on each PHP web server
-- [ ] **COMM-06**: Provide listener.php include file for PHP app integration
-- [ ] **COMM-07**: Accept connections from PHP app via Unix socket or UDP
+- [x] **COMM-04**: Implement circuit breaker pattern (auto-disable after consecutive failures)
+- [x] **COMM-05**: Run as background daemon process on each PHP web server
+- [x] **COMM-06**: Provide listener.php include file for PHP app integration
+- [x] **COMM-07**: Accept connections from PHP app via Unix socket or UDP
 
 ### PHP Agent - Daemon Lifecycle
 
-- [ ] **DAEMON-01**: Implement worker restart policy based on memory threshold (256MB)
-- [ ] **DAEMON-02**: Implement worker restart policy based on request count (100-1,000 requests)
-- [ ] **DAEMON-03**: Enable garbage collection with periodic gc_collect_cycles()
-- [ ] **DAEMON-04**: Handle graceful shutdown on SIGTERM
-- [ ] **DAEMON-05**: Implement memory buffering for pending sends
-- [ ] **DAEMON-06**: Implement disk overflow buffer when memory buffer full
+- [x] **DAEMON-01**: Implement worker restart policy based on memory threshold (256MB)
+- [x] **DAEMON-02**: Implement worker restart policy based on request count (100-1,000 requests)
+- [x] **DAEMON-03**: Enable garbage collection with periodic gc_collect_cycles()
+- [x] **DAEMON-04**: Handle graceful shutdown on SIGTERM
+- [x] **DAEMON-05**: Implement memory buffering for pending sends
+- [x] **DAEMON-06**: Implement disk overflow buffer when memory buffer full
 
 ### Postgres Agent - Data Collection
 
