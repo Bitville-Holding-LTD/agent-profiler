@@ -26,7 +26,7 @@ Plans:
 - [x] 01-03-PLAN.md - SQL query capture via Phalcon events
 - [x] 01-04-PLAN.md - Socket transmission with disk buffer fallback
 - [x] 01-05-PLAN.md - Request metadata collection
-- [ ] 01-06-PLAN.md - listener.php orchestration and integration
+- [x] 01-06-PLAN.md - listener.php orchestration and integration
 
 **Success Criteria:**
 1. Profiling data is captured only for PHP requests exceeding 500ms threshold
@@ -60,6 +60,14 @@ Plans:
 **Goal:** PHP agent runs reliably as long-running daemon process with graceful lifecycle management
 
 **Requirements:** COMM-04, COMM-05, COMM-06, COMM-07, DAEMON-01, DAEMON-02, DAEMON-03, DAEMON-04, DAEMON-05, DAEMON-06
+
+**Plans:** 4 plans
+
+Plans:
+- [ ] 02-01-PLAN.md - Daemon foundation (ReactPHP event loop, socket server, worker lifecycle)
+- [ ] 02-02-PLAN.md - Buffer management (memory buffer + disk overflow)
+- [ ] 02-03-PLAN.md - Circuit breaker & transmission (circuit breaker pattern + transmitter)
+- [ ] 02-04-PLAN.md - Integration & process management (supervisord/systemd, health check)
 
 **Success Criteria:**
 1. PHP agent runs as background daemon process on each web server
@@ -191,7 +199,7 @@ Plans:
 **Success Criteria:**
 1. Basic web UI displays logs directly on listener server
 2. Search/filter API supports queries by project, URL, duration, timestamp
-3. Timeline visualization shows request flow (PHP → DB)
+3. Timeline visualization shows request flow (PHP -> DB)
 4. PHP request traces are linked to their SQL queries via correlation ID
 5. Comparative analysis shows how a request compares to averages
 6. Multi-project filtering works correctly
@@ -200,7 +208,7 @@ Plans:
 - Web UI (simple HTML/CSS/JS interface)
 - REST API for search/filter operations
 - Timeline visualization component
-- Correlation view (PHP request → SQL queries)
+- Correlation view (PHP request -> SQL queries)
 - Statistical comparison module (request vs average)
 - Project selector/filter
 - Query builder interface
@@ -216,7 +224,7 @@ Plans:
 **Requirements:** CFG-01, CFG-02, CFG-03, CFG-04, CFG-05, CFG-06, CFG-07
 
 **Success Criteria:**
-1. Firewall rules are documented for PHP/DB servers → listener communication
+1. Firewall rules are documented for PHP/DB servers -> listener communication
 2. Installation script automates PHP agent daemon setup
 3. Installation script automates Postgres agent daemon setup
 4. Installation script automates listener server setup
@@ -269,4 +277,4 @@ Plans:
 
 ---
 
-*Last updated: 2026-01-27 after Phase 1 completion*
+*Last updated: 2026-01-27 after Phase 2 planning*
