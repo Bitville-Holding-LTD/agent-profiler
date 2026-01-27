@@ -64,10 +64,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 02-01-PLAN.md - Daemon foundation (ReactPHP event loop, socket server, worker lifecycle)
-- [ ] 02-02-PLAN.md - Buffer management (memory buffer + disk overflow)
-- [ ] 02-03-PLAN.md - Circuit breaker & transmission (circuit breaker pattern + transmitter)
-- [ ] 02-04-PLAN.md - Integration & process management (supervisord/systemd, health check)
+- [x] 02-01-PLAN.md - Daemon foundation (ReactPHP event loop, socket server, worker lifecycle)
+- [x] 02-02-PLAN.md - Buffer management (memory buffer + disk overflow)
+- [x] 02-03-PLAN.md - Circuit breaker & transmission (circuit breaker pattern + transmitter)
+- [x] 02-04-PLAN.md - Integration & process management (supervisord/systemd, health check)
 
 **Success Criteria:**
 1. PHP agent runs as background daemon process on each web server
@@ -102,6 +102,14 @@ Plans:
 **Goal:** Central server receives, stores, and correlates profiling data from multiple agents
 
 **Requirements:** LIST-01, LIST-02, LIST-03, LIST-04, LIST-05, STOR-01, STOR-02, STOR-03, STOR-04
+
+**Plans:** 4 plans
+
+Plans:
+- [ ] 03-01-PLAN.md - Database foundation (Bun project, SQLite schema, WAL mode, prepared statements)
+- [ ] 03-02-PLAN.md - HTTP server with authentication and ingestion endpoints
+- [ ] 03-03-PLAN.md - Retention policy and systemd service configuration
+- [ ] 03-04-PLAN.md - UDP receiver and rate limiting
 
 **Success Criteria:**
 1. Listener accepts profiling data from multiple PHP agents via HTTP/UDP
@@ -277,4 +285,4 @@ Plans:
 
 ---
 
-*Last updated: 2026-01-27 after Phase 2 completion*
+*Last updated: 2026-01-27 after Phase 3 planning*
