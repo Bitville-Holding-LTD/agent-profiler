@@ -2,7 +2,7 @@
 
 **Project:** Bitville APM & Centralized Logging System
 **Current Milestone:** v1.0 - Initial Release
-**Status:** Planning Complete - Ready for Phase 1
+**Status:** Phase 1 Complete - Ready for Phase 2
 
 ## Project Reference
 
@@ -10,13 +10,13 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Identify which PHP functions, SQL queries, or specific requests are causing random load spikes up to 200 load average
 
-**Current focus:** Phase 1 - PHP Agent Core Instrumentation & Safety
+**Current focus:** Phase 2 - PHP Agent Daemon Architecture & Lifecycle
 
 ## Phase Progress
 
 | Phase | Status | Plans | Progress | Commits |
 |-------|--------|-------|----------|---------|
-| 1 - PHP Agent Core Instrumentation & Safety | ◆ In Progress | 5/6 | 83% | 713bf51, 980bb51, def8a37 |
+| 1 - PHP Agent Core Instrumentation & Safety | ✓ Complete | 6/6 | 100% | a2b8ae0, 713bf51, 980bb51, def8a37 |
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ○ Pending | 0/? | 0% | - |
 | 3 - Central Listener Data Reception & Storage | ○ Pending | 0/? | 0% | - |
 | 4 - Graylog Integration & Forwarding | ○ Pending | 0/? | 0% | - |
@@ -26,42 +26,43 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Legend:** ○ Pending | ◆ In Progress | ✓ Complete
 
-**Phase 1 Progress:** ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░█████████████████████████████████████████████████████████ 83% (5/6 plans)
+**Phase 1 Progress:** ████████████████████████████████████████████████████████████████████████████████████████████ 100% (6/6 plans)
 
 ## Milestone Overview
 
 **Total phases:** 7
-**Completed:** 0
+**Completed:** 1
 **In progress:** 0
-**Remaining:** 7
+**Remaining:** 6
 
 **Requirements coverage:**
 - Total v1 requirements: 48
-- Completed: 0
-- Remaining: 48
+- Completed: 11 (Phase 1: PHP-01 to PHP-08, COMM-01 to COMM-03)
+- Remaining: 37
 
 ## Current Phase
 
-**Phase 1: PHP Agent Core Instrumentation & Safety**
+**Phase 2: PHP Agent Daemon Architecture & Lifecycle**
 
-**Goal:** Users can capture profiling data for slow PHP requests without impacting application stability
+**Goal:** Background daemon processes buffered profiling data and forwards to central listener
 
-**Requirements:** 11 requirements (PHP-01 to PHP-08, COMM-01 to COMM-03)
+**Status:** Pending - awaiting phase planning
 
-**Progress:** 5/6 plans complete (83%)
+**Phase 1 (COMPLETE):** PHP Agent Core Instrumentation & Safety
+- ✅ All 11 requirements delivered (PHP-01 to PHP-08, COMM-01 to COMM-03)
+- ✅ All 6 plans complete:
+  - Plan 01-01: Configuration & Correlation Foundation
+  - Plan 01-02: XHProf Integration
+  - Plan 01-03: SQL Capture Module
+  - Plan 01-04: Socket Transmission Layer
+  - Plan 01-05: Request Metadata Collector
+  - Plan 01-06: listener.php Orchestration
 
-**Completed:**
-- ✅ Plan 01-01: Configuration & Correlation Foundation
-- ✅ Plan 01-02: XHProf Integration
-- ✅ Plan 01-03: SQL Capture Module
-- ✅ Plan 01-04: Socket Transmission Layer
-- ✅ Plan 01-05: Request Metadata Collector
-
-**Next step:** Execute plan 01-06 (Integration layer)
+**Next step:** Plan Phase 2 activities
 
 ## Active Work
 
-Phase 1 in progress - executing plans sequentially.
+Phase 1 complete. Ready for Phase 2 planning.
 
 ## Blockers/Concerns
 
@@ -69,6 +70,8 @@ None currently.
 
 ## Recent Activity
 
+- 2026-01-27: **🎉 PHASE 1 COMPLETE** - PHP Agent Core Instrumentation & Safety (6/6 plans, 11 requirements)
+- 2026-01-27: Completed plan 01-06 - listener.php Orchestration (2 tasks, 21min)
 - 2026-01-27: Completed plan 01-05 - Request Metadata Collector (3 tasks, 2min 24sec)
 - 2026-01-27: Completed plan 01-02 - XHProf Integration (2 tasks, 2min 22sec)
 - 2026-01-27: Completed plan 01-04 - Socket Transmission Layer (3 tasks, 2min 12sec)
@@ -83,6 +86,12 @@ None currently.
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Shutdown function with set_time_limit(0) | Prevent profiler timeout during collection | 01-06 | 2026-01-27 |
+| Global variables for component storage | Enable access from shutdown function scope | 01-06 | 2026-01-27 |
+| BITVILLE_APM_PROJECT constant | Manual project identification per deployment | 01-06 | 2026-01-27 |
+| Helper functions (bitville_apm_*) | Application integration API (correlation ID, custom context) | 01-06 | 2026-01-27 |
+| Fatal error capture via error_get_last() | Detect and include fatal errors in profiling payload | 01-06 | 2026-01-27 |
+| Complete try-catch at init and shutdown | Double-layer safety prevents any application impact | 01-06 | 2026-01-27 |
 | Recursive filtering max depth 5 | Prevent infinite loops in nested data structures | 01-05 | 2026-01-27 |
 | String truncation at 1000/500 chars | Memory safety for large values/headers | 01-05 | 2026-01-27 |
 | 10 sensitive key patterns defined | Comprehensive coverage (password, token, api_key, etc.) | 01-05 | 2026-01-27 |
@@ -108,4 +117,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T17:25:08Z - Completed plan 01-05 (Request Metadata Collector)
+Last activity: 2026-01-27T17:50:18Z - **Phase 1 Complete** (listener.php Orchestration)
