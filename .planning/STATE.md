@@ -77,6 +77,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 02-03 - Circuit Breaker & Transmitter (2 tasks, 2min)
 - 2026-01-27: Completed plan 02-02 - Buffer Management (2 tasks, 1min 58sec)
 - 2026-01-27: Completed plan 02-01 - Daemon Foundation (3 tasks, 2min 50sec)
 - 2026-01-27: **🎉 PHASE 1 COMPLETE** - PHP Agent Core Instrumentation & Safety (6/6 plans, 11 requirements)
@@ -95,6 +96,10 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Circuit breaker opens after 5 consecutive failures | Balance between sensitivity and false positives | 02-03 | 2026-01-27 |
+| Circuit breaker retry timeout: 60 seconds | Allow time for central listener recovery without excessive delay | 02-03 | 2026-01-27 |
+| Circuit breaker state persists to disk | Prevents retry storm after daemon restart when listener still down | 02-03 | 2026-01-27 |
+| HTTP transmission: 5s timeout, 2s connect | Quick failure detection for circuit breaker | 02-03 | 2026-01-27 |
 | Memory buffer limit: 100 items | Balances memory usage with disk I/O frequency | 02-02 | 2026-01-27 |
 | Disk buffer path: /var/lib/bitville-apm/buffer | Separate from runtime for persistence across restarts | 02-02 | 2026-01-27 |
 | FIFO replay on startup | Recovers buffered data from previous daemon run | 02-02 | 2026-01-27 |
@@ -136,4 +141,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T18:26:48Z - Completed plan 02-02 (Buffer Management)
+Last activity: 2026-01-27T18:26:53Z - Completed plan 02-03 (Circuit Breaker & Transmitter)
