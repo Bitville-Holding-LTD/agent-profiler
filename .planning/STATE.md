@@ -17,7 +17,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | Phase | Status | Plans | Progress | Commits |
 |-------|--------|-------|----------|---------|
 | 1 - PHP Agent Core Instrumentation & Safety | ✓ Complete | 6/6 | 100% | a2b8ae0, 713bf51, 980bb51, def8a37 |
-| 2 - PHP Agent Daemon Architecture & Lifecycle | ◆ In Progress | 1/? | ~20% | 7928601, deee093, 0b74996 |
+| 2 - PHP Agent Daemon Architecture & Lifecycle | ◆ In Progress | 3/? | ~60% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67 |
 | 3 - Central Listener Data Reception & Storage | ○ Pending | 0/? | 0% | - |
 | 4 - Graylog Integration & Forwarding | ○ Pending | 0/? | 0% | - |
 | 5 - Postgres Agent Database Monitoring | ○ Pending | 0/? | 0% | - |
@@ -46,10 +46,12 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Goal:** Background daemon processes buffered profiling data and forwards to central listener
 
-**Status:** In Progress - Plan 02-01 complete (Daemon Foundation)
+**Status:** In Progress - Plans 02-01, 02-02, and 02-03 complete
 
 **Progress:**
 - ✅ Plan 02-01: Daemon Foundation (ReactPHP event loop, socket server, worker lifecycle)
+- ✅ Plan 02-02: Buffer Management (memory buffer, disk overflow, FIFO replay)
+- ✅ Plan 02-03: Circuit Breaker & Transmitter (failure tracking, HTTP forwarding)
 
 **Phase 1 (COMPLETE):** PHP Agent Core Instrumentation & Safety
 - ✅ All 11 requirements delivered (PHP-01 to PHP-08, COMM-01 to COMM-03)
@@ -65,9 +67,9 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 ## Active Work
 
-**Phase 2 - Plan 02-01 COMPLETE:** Daemon foundation with ReactPHP event loop, Unix socket server, and worker lifecycle management.
+**Phase 2 - Plan 02-03 COMPLETE:** Circuit breaker pattern with persistent state and HTTP transmitter for central listener forwarding.
 
-**Next:** Plan 02-02 - Buffer management implementation.
+**Next:** Plan 02-04 - Socket protocol bridge (SOCK_DGRAM to SOCK_STREAM).
 
 ## Blockers/Concerns
 
@@ -75,6 +77,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 02-02 - Buffer Management (2 tasks, 1min 58sec)
 - 2026-01-27: Completed plan 02-01 - Daemon Foundation (3 tasks, 2min 50sec)
 - 2026-01-27: **🎉 PHASE 1 COMPLETE** - PHP Agent Core Instrumentation & Safety (6/6 plans, 11 requirements)
 - 2026-01-27: Completed plan 01-06 - listener.php Orchestration (2 tasks, 21min)
@@ -92,6 +95,10 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Memory buffer limit: 100 items | Balances memory usage with disk I/O frequency | 02-02 | 2026-01-27 |
+| Disk buffer path: /var/lib/bitville-apm/buffer | Separate from runtime for persistence across restarts | 02-02 | 2026-01-27 |
+| FIFO replay on startup | Recovers buffered data from previous daemon run | 02-02 | 2026-01-27 |
+| Flush to disk on SIGTERM and worker restart | Prevents data loss during graceful shutdown | 02-02 | 2026-01-27 |
 | ReactPHP event loop for daemon | Industry standard for PHP long-running processes | 02-01 | 2026-01-27 |
 | SOCK_STREAM sockets for ReactPHP daemon | ReactPHP UnixServer requirement (Plan 02-04 will bridge DGRAM) | 02-01 | 2026-01-27 |
 | Worker restart at 256MB or 1000 requests | Prevents memory leaks in long-running daemon | 02-01 | 2026-01-27 |
@@ -129,4 +136,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T18:22:47Z - Completed plan 02-01 (Daemon Foundation)
+Last activity: 2026-01-27T18:26:48Z - Completed plan 02-02 (Buffer Management)
