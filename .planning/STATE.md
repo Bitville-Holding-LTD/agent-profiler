@@ -2,7 +2,7 @@
 
 **Project:** Bitville APM & Centralized Logging System
 **Current Milestone:** v1.0 - Initial Release
-**Status:** Phase 1 Complete - Ready for Phase 2
+**Status:** Phase 2 Complete - Phase 3 In Progress
 
 ## Project Reference
 
@@ -10,15 +10,15 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Identify which PHP functions, SQL queries, or specific requests are causing random load spikes up to 200 load average
 
-**Current focus:** Phase 2 - PHP Agent Daemon Architecture & Lifecycle
+**Current focus:** Phase 3 - Central Listener Data Reception & Storage
 
 ## Phase Progress
 
 | Phase | Status | Plans | Progress | Commits |
 |-------|--------|-------|----------|---------|
 | 1 - PHP Agent Core Instrumentation & Safety | ✓ Complete | 6/6 | 100% | a2b8ae0, 713bf51, 980bb51, def8a37 |
-| 2 - PHP Agent Daemon Architecture & Lifecycle | ◆ In Progress | 4/? | ~80% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
-| 3 - Central Listener Data Reception & Storage | ○ Pending | 0/? | 0% | - |
+| 2 - PHP Agent Daemon Architecture & Lifecycle | ✓ Complete | 4/4 | 100% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
+| 3 - Central Listener Data Reception & Storage | ◆ In Progress | 1/? | ~20% | 410eadc, b6018b5, d01a214 |
 | 4 - Graylog Integration & Forwarding | ○ Pending | 0/? | 0% | - |
 | 5 - Postgres Agent Database Monitoring | ○ Pending | 0/? | 0% | - |
 | 6 - Query Interface & Visualization | ○ Pending | 0/? | 0% | - |
@@ -31,53 +31,54 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Milestone Overview
 
 **Total phases:** 7
-**Completed:** 1
+**Completed:** 2
 **In progress:** 1
-**Remaining:** 5
+**Remaining:** 4
 
 **Requirements coverage:**
 - Total v1 requirements: 48
-- Completed: 11 (Phase 1: PHP-01 to PHP-08, COMM-01 to COMM-03)
-- Remaining: 37
+- Completed: 15 (Phase 1-2: PHP-01 to PHP-08, COMM-01 to COMM-03, DAEMON-01 to DAEMON-04)
+- Remaining: 33
 
 ## Current Phase
 
-**Phase 2: PHP Agent Daemon Architecture & Lifecycle**
+**Phase 3: Central Listener Data Reception & Storage**
 
-**Goal:** Background daemon processes buffered profiling data and forwards to central listener
+**Goal:** Central server receives, stores, and correlates profiling data from multiple agents
 
-**Status:** In Progress - Plans 02-01, 02-02, 02-03, and 02-04 complete
+**Status:** In Progress - Plan 03-01 complete
 
 **Progress:**
-- ✅ Plan 02-01: Daemon Foundation (ReactPHP event loop, socket server, worker lifecycle)
-- ✅ Plan 02-02: Buffer Management (memory buffer, disk overflow, FIFO replay)
-- ✅ Plan 02-03: Circuit Breaker & Transmitter (failure tracking, HTTP forwarding)
-- ✅ Plan 02-04: Daemon Integration & Process Management (health check, periodic transmission, supervisord/systemd)
+- ✅ Plan 03-01: Database Foundation (SQLite with WAL mode, unified profiling_data table, prepared statements)
+
+**Phase 2 (COMPLETE):** PHP Agent Daemon Architecture & Lifecycle
+- ✅ All 4 requirements delivered (DAEMON-01 to DAEMON-04)
+- ✅ All 4 plans complete:
+  - Plan 02-01: Daemon Foundation (ReactPHP event loop, socket server, worker lifecycle)
+  - Plan 02-02: Buffer Management (memory buffer, disk overflow, FIFO replay)
+  - Plan 02-03: Circuit Breaker & Transmitter (failure tracking, HTTP forwarding)
+  - Plan 02-04: Daemon Integration & Process Management (health check, periodic transmission, supervisord/systemd)
 
 **Phase 1 (COMPLETE):** PHP Agent Core Instrumentation & Safety
 - ✅ All 11 requirements delivered (PHP-01 to PHP-08, COMM-01 to COMM-03)
-- ✅ All 6 plans complete:
-  - Plan 01-01: Configuration & Correlation Foundation
-  - Plan 01-02: XHProf Integration
-  - Plan 01-03: SQL Capture Module
-  - Plan 01-04: Socket Transmission Layer
-  - Plan 01-05: Request Metadata Collector
-  - Plan 01-06: listener.php Orchestration
+- ✅ All 6 plans complete
 
-**Next step:** Plan Phase 2 activities
+**Next step:** Continue Phase 3 plans (HTTP ingestion, retention, etc.)
 
 ## Active Work
 
-**Phase 2 - Plan 02-04 COMPLETE:** Daemon integration with health check, periodic transmission, and process management configs.
+**Phase 3 - Plan 03-01 COMPLETE:** Database foundation with SQLite WAL mode, unified table, and prepared statements.
 
-**Next:** Determine if Phase 2 has additional plans, or ready for Phase 3 (Central Listener).
+**Next:** Plan 03-02 (HTTP Ingestion) - Bun HTTP server with TLS, API key authentication, and request handlers.
 
 ## Blockers/Concerns
 
-None - Phase 2 daemon architecture complete and ready for central listener implementation.
+None - database layer complete and ready for HTTP ingestion layer.
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 03-01 - Database Foundation (3 tasks, 3min 8sec)
+- 2026-01-27: **🎉 PHASE 2 COMPLETE** - PHP Agent Daemon Architecture & Lifecycle (4/4 plans, 4 requirements)
 - 2026-01-27: Completed plan 02-04 - Daemon Integration & Process Management (4 tasks, 3min 39sec)
 - 2026-01-27: Completed plan 02-03 - Circuit Breaker & Transmitter (2 tasks, 2min)
 - 2026-01-27: Completed plan 02-02 - Buffer Management (2 tasks, 1min 58sec)
@@ -98,6 +99,11 @@ None - Phase 2 daemon architecture complete and ready for central listener imple
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Prepared statements for all queries | SQL injection protection and query plan caching | 03-01 | 2026-01-27 |
+| Runtime environment variable reading | DB path read in initDatabase() for testability | 03-01 | 2026-01-27 |
+| Partial index on duration_ms | WHERE clause excludes NULL values for smaller index size | 03-01 | 2026-01-27 |
+| Unified table for PHP and Postgres data | Simplifies correlation queries and retention policy | 03-01 | 2026-01-27 |
+| WAL mode enabled first before any operations | Ensures concurrent reads during writes from start | 03-01 | 2026-01-27 |
 | 30 second graceful shutdown timeout | Allows buffer flush to complete before forced termination | 02-04 | 2026-01-27 |
 | Newline-delimited JSON for stream protocol | Standard stream protocol for line-based message framing | 02-04 | 2026-01-27 |
 | SOCK_STREAM instead of SOCK_DGRAM | Required for ReactPHP UnixServer compatibility | 02-04 | 2026-01-27 |
@@ -148,4 +154,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T18:32:54Z - Completed plan 02-04 (Daemon Integration & Process Management)
+Last activity: 2026-01-27T19:59:27Z - Completed plan 03-01 (Database Foundation)
