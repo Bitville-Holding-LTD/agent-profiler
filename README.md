@@ -60,19 +60,19 @@ The system is composed of three interconnected components:
 
 ## Current Status
 
-🚧 **In Active Development**
+🚧 **In Active Development** - **38% Complete** (18/48 requirements delivered)
 
 | Phase | Status | Progress |
 |-------|--------|----------|
 | **Phase 1**: PHP Agent Core Instrumentation & Safety | ✅ Complete | 100% |
-| **Phase 2**: PHP Agent Daemon Architecture & Lifecycle | 🔄 In Progress | ~60% |
-| **Phase 3**: Central Listener Data Reception & Storage | ⏳ Pending | 0% |
+| **Phase 2**: PHP Agent Daemon Architecture & Lifecycle | ✅ Complete | 100% |
+| **Phase 3**: Central Listener Data Reception & Storage | 🔄 In Progress | ~75% |
 | **Phase 4**: Graylog Integration & Forwarding | ⏳ Pending | 0% |
 | **Phase 5**: Postgres Agent Database Monitoring | ⏳ Pending | 0% |
 | **Phase 6**: Query Interface & Visualization | ⏳ Pending | 0% |
 | **Phase 7**: Configuration & Deployment | ⏳ Pending | 0% |
 
-**Completed Features (Phase 1):**
+**Completed Features (Phases 1-2):**
 - ✅ Configuration system with feature toggles
 - ✅ UUID v4 correlation ID generation
 - ✅ XHProf integration for function profiling
@@ -81,13 +81,24 @@ The system is composed of three interconnected components:
 - ✅ Memory usage tracking
 - ✅ Non-blocking socket transmission with disk buffer fallback
 - ✅ listener.php integration file for PHP applications
+- ✅ ReactPHP-based daemon with event loop
+- ✅ Worker lifecycle management (memory/request limits, garbage collection)
+- ✅ Circuit breaker pattern for failure handling
+- ✅ Buffer management (memory + disk overflow with FIFO replay)
+- ✅ HTTP transmitter to central listener
+- ✅ Health check endpoint for monitoring
+- ✅ Graceful shutdown handling (SIGTERM/SIGHUP)
 
-**In Progress (Phase 2):**
-- 🔄 ReactPHP-based daemon with event loop
-- 🔄 Worker lifecycle management (memory/request limits)
-- 🔄 Circuit breaker pattern for failure handling
-- 🔄 Buffer management (memory + disk overflow)
-- 🔄 HTTP transmitter to central listener
+**In Progress (Phase 3):**
+- ✅ SQLite database with WAL mode for concurrent access
+- ✅ HTTP/HTTPS server with Bearer token authentication
+- ✅ UDP receiver for fire-and-forget ingestion
+- ✅ Rate limiting (100 requests/minute per IP)
+- ✅ 7-day automatic retention with hourly cleanup
+- ✅ Health/readiness endpoints with diagnostics
+- ✅ Systemd service with security hardening
+- 🔄 Data correlation by correlation ID
+- 🔄 Multi-project data separation
 
 ## Key Features
 
@@ -128,10 +139,11 @@ The system is composed of three interconnected components:
 - **Permissions**: Read access to Postgres logs and pg_stat_* views
 
 ### Central Listener Requirements
-- **PHP**: 7.4+
+- **Bun**: 1.0+ (JavaScript/TypeScript runtime)
 - **SQLite**: 3.x
-- **Network**: Accessible from PHP and DB servers
+- **Network**: Accessible from PHP and DB servers (ports 8443 HTTPS, 8444 UDP)
 - **Storage**: ~1GB for 7-day retention (varies by traffic)
+- **Optional**: TLS certificates for HTTPS (falls back to HTTP if not provided)
 
 ## Installation
 
@@ -212,18 +224,37 @@ bitville-monitoring/
 ├── php-agent/              # PHP agent implementation
 │   ├── daemon/             # Daemon process components
 │   │   ├── daemon.php      # Main daemon entry point
-│   │   ├── DaemonManager.php  # Process lifecycle management
-│   │   ├── BufferManager.php  # Memory + disk buffering
-│   │   ├── CircuitBreaker.php # Failure tracking
-│   │   └── Transmitter.php    # HTTP forwarding to listener
+│   │   ├── daemon_manager.php  # Process lifecycle management
+│   │   ├── buffer_manager.php  # Memory + disk buffering
+│   │   ├── circuit_breaker.php # Failure tracking
+│   │   └── transmitter.php     # HTTP forwarding to listener
 │   └── profiling/          # Profiling components
 │       ├── listener.php    # PHP application integration
-│       ├── ConfigLoader.php    # Configuration management
-│       ├── CorrelationIdGenerator.php  # UUID v4 generation
-│       ├── XHProfProfiler.php  # XHProf integration
-│       ├── SqlCapture.php      # SQL query capture
-│       ├── MetadataCollector.php  # Request metadata
-│       └── SocketTransmitter.php  # Socket communication
+│       ├── config_loader.php       # Configuration management
+│       ├── correlation_id.php      # UUID v4 generation
+│       ├── xhprof_profiler.php     # XHProf integration
+│       ├── sql_capture.php         # SQL query capture
+│       ├── metadata_collector.php  # Request metadata
+│       └── socket_transmitter.php  # Socket communication
+├── listener/               # Central listener server (TypeScript/Bun)
+│   ├── index.ts            # Main server entry point
+│   ├── src/
+│   │   ├── server.ts       # HTTP/UDP server setup
+│   │   ├── database/       # SQLite database layer
+│   │   │   ├── connection.ts   # DB initialization
+│   │   │   ├── queries.ts      # Prepared statements
+│   │   │   └── cleanup.ts      # Retention policy
+│   │   ├── handlers/       # Request handlers
+│   │   │   ├── php-agent.ts    # PHP agent ingestion
+│   │   │   ├── postgres-agent.ts  # Postgres agent ingestion
+│   │   │   └── udp-receiver.ts    # UDP ingestion
+│   │   ├── middleware/     # Server middleware
+│   │   │   ├── auth.ts         # Bearer token authentication
+│   │   │   ├── rate-limit.ts   # Rate limiting
+│   │   │   └── validation.ts   # Payload validation
+│   │   └── types/          # TypeScript type definitions
+│   ├── bitville-listener.service  # systemd service file
+│   └── package.json        # Dependencies (Bun)
 └── README.md               # This file
 ```
 
@@ -303,10 +334,10 @@ This is an open-source project. If you find it useful and want to contribute imp
 See [ROADMAP.md](.planning/ROADMAP.md) for the complete 7-phase development plan.
 
 **Next Milestones:**
-1. Complete Phase 2 (Daemon Architecture) - ~60% done
-2. Implement Central Listener (Phase 3)
-3. Add Graylog Integration (Phase 4)
-4. Deploy PostgreSQL Agent (Phase 5)
+1. Complete Phase 3 (Central Listener) - ~75% done
+2. Add Graylog Integration (Phase 4)
+3. Deploy PostgreSQL Agent (Phase 5)
+4. Build Query Interface & Visualization (Phase 6)
 
 ## Technical Environment
 
@@ -360,5 +391,23 @@ For questions or support, contact the development team.
 ---
 
 **Last Updated**: 2026-01-27  
-**Version**: v1.0-dev (Phase 2 in progress)  
+**Version**: v1.0-dev (Phase 3 in progress - 38% complete)  
 **Status**: 🚧 Active Development
+
+## Recent Progress
+
+**Phase 2 Complete (2026-01-27)** 🎉
+- ReactPHP daemon with event loop and Unix socket server
+- Worker lifecycle management with memory/request limits
+- Circuit breaker pattern with persistent state
+- Buffer management (memory + disk overflow)
+- HTTP transmitter with health checks
+- Graceful shutdown handling
+
+**Phase 3 In Progress (~75%)**
+- SQLite database with WAL mode and unified schema
+- HTTP/HTTPS server with Bearer token authentication
+- UDP receiver for high-throughput ingestion
+- Rate limiting (100 req/min per IP)
+- 7-day retention with automated cleanup
+- Systemd service with security hardening
