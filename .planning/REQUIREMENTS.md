@@ -173,11 +173,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STOR-02 | Phase 3 | Complete |
 | STOR-03 | Phase 3 | Complete |
 | STOR-04 | Phase 3 | Complete |
-| GELF-01 | Phase 4 | Pending |
-| GELF-02 | Phase 4 | Pending |
-| GELF-03 | Phase 4 | Pending |
-| GELF-04 | Phase 4 | Pending |
-| GELF-05 | Phase 4 | Pending |
+| GELF-01 | Phase 4 | Complete |
+| GELF-02 | Phase 4 | Complete |
+| GELF-03 | Phase 4 | Complete |
+| GELF-04 | Phase 4 | Complete |
+| GELF-05 | Phase 4 | Complete |
 | PG-01 | Phase 5 | Pending |
 | PG-02 | Phase 5 | Pending |
 | PG-03 | Phase 5 | Pending |
