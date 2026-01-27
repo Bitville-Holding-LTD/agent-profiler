@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS profiling_data (
     timestamp INTEGER NOT NULL,  -- Unix timestamp (seconds)
     duration_ms REAL,  -- Request duration, NULL for DB-only records
     payload TEXT NOT NULL,  -- Full JSON payload
-    created_at INTEGER DEFAULT (strftime('%s', 'now'))
+    created_at INTEGER DEFAULT (strftime('%s', 'now')),
+    forwarded_to_graylog INTEGER NOT NULL DEFAULT 0 CHECK(forwarded_to_graylog IN (0, 1))
 );
 
 -- Indexes for required query patterns (STOR-03)
@@ -16,3 +17,4 @@ CREATE INDEX IF NOT EXISTS idx_project_timestamp ON profiling_data(project, time
 CREATE INDEX IF NOT EXISTS idx_duration ON profiling_data(duration_ms) WHERE duration_ms IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_source_timestamp ON profiling_data(source, timestamp);
 CREATE INDEX IF NOT EXISTS idx_created_at ON profiling_data(created_at);  -- For retention cleanup
+CREATE INDEX IF NOT EXISTS idx_forwarded_to_graylog ON profiling_data(forwarded_to_graylog, id);

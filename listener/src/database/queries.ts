@@ -30,8 +30,8 @@ export function insertProfilingData(data: {
   }
 
   const stmt = db.prepare(`
-    INSERT INTO profiling_data (correlation_id, project, source, timestamp, duration_ms, payload)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO profiling_data (correlation_id, project, source, timestamp, duration_ms, payload, forwarded_to_graylog)
+    VALUES (?, ?, ?, ?, ?, ?, 0)
   `);
 
   const result = stmt.run(
@@ -160,4 +160,54 @@ export function countByProject(): Array<{ project: string; count: number }> {
   `);
 
   return stmt.all() as Array<{ project: string; count: number }>;
+}
+
+/**
+ * Get unforwarded records for Graylog replay
+ *
+ * @param limit Maximum number of records to return (default 100)
+ * @returns Array of profiling data rows pending forwarding
+ */
+export function getUnforwardedRecords(limit: number = 100): ProfilingDataRow[] {
+  const db = getDatabase();
+  if (!db) throw new Error("Database not initialized");
+
+  const stmt = db.prepare(`
+    SELECT id, correlation_id, project, source, timestamp, duration_ms, payload, created_at
+    FROM profiling_data
+    WHERE forwarded_to_graylog = 0
+    ORDER BY id ASC
+    LIMIT ?
+  `);
+
+  return stmt.all(limit) as ProfilingDataRow[];
+}
+
+/**
+ * Mark a record as forwarded to Graylog
+ *
+ * @param rowId Row ID to mark as forwarded
+ */
+export function markAsForwarded(rowId: number): void {
+  const db = getDatabase();
+  if (!db) throw new Error("Database not initialized");
+
+  const stmt = db.prepare(`
+    UPDATE profiling_data SET forwarded_to_graylog = 1 WHERE id = ?
+  `);
+  stmt.run(rowId);
+}
+
+/**
+ * Count unforwarded records
+ *
+ * @returns Number of records pending Graylog forwarding
+ */
+export function getUnforwardedCount(): number {
+  const db = getDatabase();
+  if (!db) throw new Error("Database not initialized");
+
+  const stmt = db.prepare(`SELECT COUNT(*) as count FROM profiling_data WHERE forwarded_to_graylog = 0`);
+  const result = stmt.get() as { count: number };
+  return result.count;
 }

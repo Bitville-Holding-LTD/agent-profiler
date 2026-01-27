@@ -43,6 +43,26 @@ export function initDatabase(): Database {
   const schema = readFileSync(schemaPath, "utf-8");
   db.exec(schema);
 
+  // Migration: Add forwarded_to_graylog column if missing
+  const hasColumn = db.query("PRAGMA table_info(profiling_data)").all()
+    .some((col: any) => col.name === 'forwarded_to_graylog');
+
+  if (!hasColumn) {
+    console.log("[Database] Migrating: Adding forwarded_to_graylog column...");
+    // Add column with DEFAULT 1 for existing records (assume already sent)
+    db.exec(`
+      ALTER TABLE profiling_data
+      ADD COLUMN forwarded_to_graylog INTEGER NOT NULL DEFAULT 1
+      CHECK(forwarded_to_graylog IN (0, 1))
+    `);
+    // Create index for replay queries
+    db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_forwarded_to_graylog
+      ON profiling_data(forwarded_to_graylog, id)
+    `);
+    console.log("[Database] Migration complete: forwarded_to_graylog column added");
+  }
+
   return db;
 }
 

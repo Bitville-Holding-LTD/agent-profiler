@@ -70,4 +70,5 @@ export interface ProfilingDataRow {
   duration_ms: number | null;
   payload: string;
   created_at: number;
+  forwarded_to_graylog?: number;  // 0=pending, 1=forwarded
 }
