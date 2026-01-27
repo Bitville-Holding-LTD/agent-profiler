@@ -2,8 +2,10 @@
 /**
  * Profiling Data Transmitter
  *
- * Sends profiling data to listener daemon via Unix domain socket
- * with strict 50ms timeout and disk buffer fallback
+ * Sends profiling data to LOCAL daemon via Unix domain socket
+ * with strict 50ms timeout and disk buffer fallback.
+ *
+ * The local daemon then forwards to the central listener.
  *
  * CRITICAL: This code must NEVER block the request or throw errors
  */
@@ -26,7 +28,7 @@ function send_profiling_data(array $data): bool
 {
     try {
         $config = get_profiling_config();
-        $socketPath = $config['listener_socket_path'] ?? '/var/run/bitville-apm/listener.sock';
+        $socketPath = $config['daemon_socket_path'] ?? '/var/run/bitville-apm/daemon.sock';
 
         // Add timestamp and version
         $data['_meta'] = [
@@ -67,8 +69,8 @@ function send_via_socket(string $json, string $socketPath): bool
     $socket = null;
 
     try {
-        // Create Unix datagram socket (fire-and-forget, no connection needed)
-        $socket = @socket_create(AF_UNIX, SOCK_DGRAM, 0);
+        // Create Unix stream socket (daemon uses SOCK_STREAM via ReactPHP)
+        $socket = @socket_create(AF_UNIX, SOCK_STREAM, 0);
 
         if ($socket === false) {
             error_log("Profiler: socket_create failed - " . socket_strerror(socket_last_error()));
@@ -87,23 +89,32 @@ function send_via_socket(string $json, string $socketPath): bool
             return write_to_disk_buffer($json);
         }
 
-        // Send data (fire-and-forget for SOCK_DGRAM)
+        // Connect to daemon socket (SOCK_STREAM requires connection)
         $startTime = microtime(true);
-        $bytesSent = @socket_sendto($socket, $json, strlen($json), 0, $socketPath);
+        if (@socket_connect($socket, $socketPath) === false) {
+            $error = socket_last_error($socket);
+            $elapsed = (microtime(true) - $startTime) * 1000;
+            error_log("Profiler: socket_connect failed - " . socket_strerror($error) . " (elapsed: {$elapsed}ms)");
+            @socket_close($socket);
+            return write_to_disk_buffer($json);
+        }
+
+        // Send data with newline delimiter (for daemon's line-based parsing)
+        $dataToSend = $json . "\n";
+        $bytesSent = @socket_send($socket, $dataToSend, strlen($dataToSend), 0);
         $elapsed = (microtime(true) - $startTime) * 1000;
 
         @socket_close($socket);
 
         if ($bytesSent === false) {
             $error = socket_last_error();
-            // Common errors: ECONNREFUSED (111), ENOENT (2)
-            error_log("Profiler: socket_sendto failed - " . socket_strerror($error) . " (elapsed: {$elapsed}ms)");
+            error_log("Profiler: socket_send failed - " . socket_strerror($error) . " (elapsed: {$elapsed}ms)");
             return write_to_disk_buffer($json);
         }
 
         // Log if close to timeout
         if ($elapsed > 40) {
-            error_log("Profiler: Warning - socket_sendto took {$elapsed}ms");
+            error_log("Profiler: Warning - socket_send took {$elapsed}ms");
         }
 
         return true;
@@ -303,7 +314,7 @@ function transmit_or_buffer(array $data): bool
 function check_listener_socket(): array
 {
     $config = get_profiling_config();
-    $socketPath = $config['listener_socket_path'] ?? '/var/run/bitville-apm/listener.sock';
+    $socketPath = $config['daemon_socket_path'] ?? '/var/run/bitville-apm/daemon.sock';
 
     $status = [
         'socket_path' => $socketPath,
