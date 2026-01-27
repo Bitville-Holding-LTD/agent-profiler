@@ -19,38 +19,46 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | 1 - PHP Agent Core Instrumentation & Safety | ✓ Complete | 6/6 | 100% | a2b8ae0, 713bf51, 980bb51, def8a37 |
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ✓ Complete | 4/4 | 100% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
 | 3 - Central Listener Data Reception & Storage | ✓ Complete | 4/4 | 100% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb, d328387, 947b3d4, 9b77fec |
-| 4 - Graylog Integration & Forwarding | ◆ In Progress | 2/? | ~50% | 41a6638, 51b99d6, 333e848, 1f069a7 |
+| 4 - Graylog Integration & Forwarding | ✓ Complete | 3/3 | 100% | 41a6638, 51b99d6, 333e848, 1f069a7, ba41f49, 9541cef, 573031b |
 | 5 - Postgres Agent Database Monitoring | ○ Pending | 0/? | 0% | - |
 | 6 - Query Interface & Visualization | ○ Pending | 0/? | 0% | - |
 | 7 - Configuration & Deployment | ○ Pending | 0/? | 0% | - |
 
 **Legend:** ○ Pending | ◆ In Progress | ✓ Complete
 
-**Phase 1 Progress:** ████████████████████████████████████████████████████████████████████████████████████████████ 100% (6/6 plans)
+**Overall Progress:** ████████████████████████████████████████████████████████████████████████████████████████████ 100% (17/17 plans)
 
 ## Milestone Overview
 
 **Total phases:** 7
-**Completed:** 3
-**In progress:** 1
+**Completed:** 4
+**In progress:** 0
 **Remaining:** 3
 
 **Requirements coverage:**
 - Total v1 requirements: 48
-- Completed: 18 (Phase 1-2: PHP-01 to PHP-08, COMM-01 to COMM-03, DAEMON-01 to DAEMON-04, Phase 3: STOR-01, STOR-02, LIST-01 to LIST-05)
-- Remaining: 30
+- Completed: 23 (Phase 1-2: PHP-01 to PHP-08, COMM-01 to COMM-03, DAEMON-01 to DAEMON-04, Phase 3: STOR-01, STOR-02, LIST-01 to LIST-05, Phase 4: GELF-01 to GELF-05)
+- Remaining: 25
 
 ## Current Phase
 
-**Phase 4: Graylog Integration & Forwarding**
+**Phase 4: Graylog Integration & Forwarding** ✓ COMPLETE
 
 **Goal:** Forward all profiling data to Graylog with resilient buffering and replay
 
-**Status:** In Progress - Plans 04-01, 04-02 complete
+**Status:** Complete - All 3 plans delivered
 
 **Progress:**
 - ✅ Plan 04-01: Database Foundation and GELF Client (forwarded_to_graylog tracking, gelf-pro TCP client, replay query functions)
 - ✅ Plan 04-02: Circuit Breaker and Forwarder (opossum circuit breaker, state persistence, GELF message building)
+- ✅ Plan 04-03: Replay Integration and Handler Wiring (FIFO replay, fire-and-forget forwarding, server initialization)
+
+**Requirements Delivered:**
+- ✅ GELF-01: All profiling data forwarded to Graylog
+- ✅ GELF-02: GELF TCP transport (gelf-pro library)
+- ✅ GELF-03: Circuit breaker pattern (5 failures, 60s retry)
+- ✅ GELF-04: SQLite buffering and FIFO replay
+- ✅ GELF-05: Project identifier in GELF messages
 
 **Phase 3 (COMPLETE):** Central Listener Data Reception & Storage
 - ✅ All 4 plans complete:
@@ -71,20 +79,22 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 - ✅ All 11 requirements delivered (PHP-01 to PHP-08, COMM-01 to COMM-03)
 - ✅ All 6 plans complete
 
-**Next step:** Continue Phase 4 plans (forwarder implementation, circuit breaker integration)
+**Next step:** Begin Phase 5 (Postgres Agent Database Monitoring)
 
 ## Active Work
 
-**Phase 4 - Plan 04-02 COMPLETE:** Circuit breaker with state persistence and forwarder module.
+**Phase 4 COMPLETE** - All Graylog integration plans delivered.
 
-**Next:** Plan 04-03 - Replay integration for buffered records.
+**Next:** Phase 5 - Postgres Agent Database Monitoring
 
 ## Blockers/Concerns
 
-None - circuit breaker and forwarder module ready for replay integration.
+None - Phase 4 complete. Ready to begin Phase 5 (Postgres Agent).
 
 ## Recent Activity
 
+- 2026-01-27: **🎉 PHASE 4 COMPLETE** - Graylog Integration & Forwarding (3/3 plans, 5 requirements)
+- 2026-01-27: Completed plan 04-03 - Replay Integration and Handler Wiring (3 tasks, ~4min)
 - 2026-01-27: Completed plan 04-02 - Circuit Breaker and Forwarder (2 tasks, 2min 57sec)
 - 2026-01-27: Completed plan 04-01 - Database Foundation and GELF Client (2 tasks, 2min 31sec)
 - 2026-01-27: **🎉 PHASE 3 COMPLETE** - Central Listener Data Reception & Storage (4/4 plans)
@@ -113,6 +123,10 @@ None - circuit breaker and forwarder module ready for replay integration.
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Batch size 100 with 100ms delay for replay | Prevents overwhelming Graylog during replay while still processing quickly | 04-03 | 2026-01-27 |
+| Circuit breaker checks in outer and inner replay loops | Enables clean interruption at batch boundaries or mid-batch | 04-03 | 2026-01-27 |
+| Fire-and-forget pattern with .catch() for forwarding | Ensures forwarding errors are logged but never block ingestion responses | 04-03 | 2026-01-27 |
+| Recovery callback triggers replay automatically | When circuit breaker closes, replay starts immediately via callback | 04-03 | 2026-01-27 |
 | Recovery callback via setImmediate | Non-blocking trigger of replay when circuit closes, prevents blocking state transition | 04-02 | 2026-01-27 |
 | GELF message extracts request context | _url, _method, _status_code extracted from payload for Graylog filtering | 04-02 | 2026-01-27 |
 | Graceful markAsForwarded handling | Try-catch for database calls in disabled mode ensures test compatibility | 04-02 | 2026-01-27 |
@@ -194,4 +208,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T21:20:58Z - Completed plan 04-02 (Circuit Breaker and Forwarder)
+Last activity: 2026-01-27T21:31:39Z - Completed Phase 4: Graylog Integration & Forwarding (3/3 plans, 5 requirements)
