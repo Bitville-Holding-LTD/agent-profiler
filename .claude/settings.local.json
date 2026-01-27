@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: initialize project\n\nAPM system with PHP agent, Postgres agent, and central listener to identify root cause of random load spikes up to 200.\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:packagist.org)",
+      "WebFetch(domain:www.dynatrace.com)",
+      "WebFetch(domain:betterstack.com)",
+      "WebFetch(domain:www.elastic.co)",
+      "WebFetch(domain:opentelemetry.io)",
+      "WebFetch(domain:docs.datadoghq.com)"
+    ]
+  }
+}
