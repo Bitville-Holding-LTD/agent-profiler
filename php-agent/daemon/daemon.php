@@ -21,6 +21,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/socket_server.php';
 require_once __DIR__ . '/worker_lifecycle.php';
 require_once __DIR__ . '/buffer_manager.php';
+require_once __DIR__ . '/transmitter.php';
+require_once __DIR__ . '/health_check.php';
 
 // Use statements
 use React\EventLoop\Loop;
@@ -32,6 +34,9 @@ define('DAEMON_MAX_REQUESTS', 1000);
 define('DAEMON_GC_INTERVAL', 100);
 define('DAEMON_BUFFER_LIMIT', 100);
 define('DAEMON_BUFFER_PATH', '/var/lib/bitville-apm/buffer');
+define('DAEMON_HEALTH_PORT', 9191);
+define('DAEMON_FLUSH_INTERVAL', 5); // seconds
+define('DAEMON_LISTENER_URL', 'http://localhost:8080/api/profiling'); // Phase 3 will provide real URL
 
 // Signal handling setup (BEFORE event loop)
 pcntl_async_signals(true);
@@ -70,6 +75,23 @@ $workerLifecycle = new WorkerLifecycle(
 // Initialize BufferManager
 $bufferManager = new BufferManager(DAEMON_BUFFER_LIMIT, DAEMON_BUFFER_PATH);
 
+// Create circuit breaker and transmitter
+$circuitBreaker = new CircuitBreaker('central_listener');
+$transmitter = new DaemonTransmitter(DAEMON_LISTENER_URL, 5, $circuitBreaker);
+
+// Create stats callback for health check
+$getStats = function() use ($workerLifecycle, $bufferManager, $circuitBreaker) {
+    return [
+        'worker' => $workerLifecycle->getStats(),
+        'buffer' => $bufferManager->getStats(),
+        'circuit_breaker' => $circuitBreaker->getStats(),
+    ];
+};
+
+// Start health check server
+$healthCheck = new HealthCheckServer(DAEMON_HEALTH_PORT, $getStats);
+$healthCheck->start();
+
 // Data handler callback - add received data to buffer
 $onDataReceived = function(array $profilingData) use ($workerLifecycle, $bufferManager) {
     $workerLifecycle->incrementRequests();
@@ -92,6 +114,47 @@ if ($replayedCount > 0) {
 // Initialize SocketServer
 $socketServer = new SocketServer(DAEMON_SOCKET_PATH, $onDataReceived);
 $socketServer->start();
+
+// Drain buffer and transmit every N seconds
+Loop::addPeriodicTimer(DAEMON_FLUSH_INTERVAL, function() use ($bufferManager, $transmitter, $circuitBreaker) {
+    // Skip if circuit breaker is open
+    if (!$circuitBreaker->isAvailable()) {
+        return;
+    }
+
+    // Flush memory buffer
+    $items = $bufferManager->flush();
+    if (empty($items)) {
+        return;
+    }
+
+    // Transmit each item
+    $success = 0;
+    $failed = 0;
+    foreach ($items as $item) {
+        if ($transmitter->send($item)) {
+            $success++;
+        } else {
+            $failed++;
+            // Re-add failed item to buffer
+            $bufferManager->add($item);
+
+            // Stop if circuit opened
+            if (!$circuitBreaker->isAvailable()) {
+                error_log("BitvilleAPM: Circuit opened during transmission, re-buffering remaining items");
+                // Re-add remaining items
+                foreach (array_slice($items, $success + $failed) as $remaining) {
+                    $bufferManager->add($remaining);
+                }
+                break;
+            }
+        }
+    }
+
+    if ($success > 0 || $failed > 0) {
+        error_log("BitvilleAPM: Transmitted {$success} items, {$failed} failed");
+    }
+});
 
 // Check for graceful shutdown every 1 second
 Loop::addPeriodicTimer(1.0, function() use (&$shouldShutdown, $socketServer, $workerLifecycle, $bufferManager) {
@@ -116,27 +179,29 @@ Loop::addPeriodicTimer(1.0, function() use (&$shouldShutdown, $socketServer, $wo
 });
 
 // Log stats every 60 seconds
-Loop::addPeriodicTimer(60.0, function() use ($workerLifecycle, $bufferManager) {
+Loop::addPeriodicTimer(60.0, function() use ($workerLifecycle, $bufferManager, $circuitBreaker) {
     $stats = $workerLifecycle->getStats();
     $bufferStats = $bufferManager->getStats();
+    $cbStats = $circuitBreaker->getStats();
     error_log(sprintf(
-        "BitvilleAPM: Stats - requests: %d, memory: %.1fMB, gc_runs: %d, buffer: %d/%d, disk_overflows: %d",
+        "BitvilleAPM: Stats - requests: %d, memory: %.1fMB, gc_runs: %d, buffer: %d/%d, circuit: %s",
         $stats['request_count'],
         $stats['memory_usage_mb'],
         $stats['gc_runs'],
         $bufferStats['memory_buffer_count'],
         $bufferStats['memory_buffer_limit'],
-        $bufferStats['disk_overflow_count']
+        $cbStats['state']
     ));
 });
 
 // Startup message
 error_log("BitvilleAPM: Daemon starting...");
 error_log(sprintf(
-    "BitvilleAPM: Config - socket: %s, memory_limit: %dMB, max_requests: %d",
+    "BitvilleAPM: Config - socket: %s, memory_limit: %dMB, max_requests: %d, health: http://127.0.0.1:%d/health",
     DAEMON_SOCKET_PATH,
     DAEMON_MEMORY_LIMIT_MB,
-    DAEMON_MAX_REQUESTS
+    DAEMON_MAX_REQUESTS,
+    DAEMON_HEALTH_PORT
 ));
 
 // Run the event loop
