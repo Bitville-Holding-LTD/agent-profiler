@@ -24,6 +24,8 @@ import { handlePhpAgent } from "./handlers/php-agent.ts";
 import { handlePostgresAgent } from "./handlers/postgres-agent.ts";
 import { getApiKeyCount } from "./middleware/auth.ts";
 import { startCleanupJob, stopCleanupJob, runCleanupNow, getCleanupStatus } from "./database/cleanup.ts";
+import { checkRateLimit, getClientIp, startRateLimitCleanup, stopRateLimitCleanup, getRateLimitStats } from "./middleware/rate-limit.ts";
+import { startUdpServer, stopUdpServer, getUdpStats } from "./handlers/udp-receiver.ts";
 
 // Initialize database on startup
 console.log("[Listener] Initializing database...");
@@ -32,6 +34,9 @@ console.log("[Listener] Database initialized successfully");
 
 // Start hourly cleanup job
 startCleanupJob();
+
+// Start rate limit cleanup
+startRateLimitCleanup();
 
 // Configure server
 const PORT = Number(Bun.env.BITVILLE_PORT) || 8443;
@@ -46,6 +51,12 @@ const tlsConfig = TLS_KEY_PATH && TLS_CERT_PATH ? {
 
 const protocol = tlsConfig ? "HTTPS" : "HTTP";
 
+// Start UDP server if port configured
+const UDP_PORT = Number(Bun.env.BITVILLE_UDP_PORT);
+if (UDP_PORT) {
+  await startUdpServer(UDP_PORT);
+}
+
 // Start server
 const server = Bun.serve({
   port: PORT,
@@ -55,7 +66,7 @@ const server = Bun.serve({
   tls: tlsConfig,
 
   // Request handler
-  async fetch(req: Request): Promise<Response> {
+  async fetch(req: Request, server: any): Promise<Response> {
     const url = new URL(req.url);
 
     // Health check endpoint (static, fast)
@@ -71,6 +82,8 @@ const server = Bun.serve({
       const dbHealthy = getDatabase() !== null;
       const apiKeyCount = getApiKeyCount();
       const cleanup = getCleanupStatus();
+      const udp = getUdpStats();
+      const rateLimit = getRateLimitStats();
 
       return new Response(JSON.stringify({
         ready: dbHealthy && apiKeyCount > 0,
@@ -81,6 +94,16 @@ const server = Bun.serve({
           running: cleanup.running,
           nextRun: cleanup.nextRun?.toISOString(),
           retentionDays: cleanup.retentionDays,
+        },
+        udp: {
+          enabled: udp.running,
+          port: udp.port,
+          received: udp.received,
+          errors: udp.errors,
+        },
+        rateLimit: {
+          activeIps: rateLimit.activeIps,
+          maxRequests: rateLimit.maxRequests,
         },
       }), {
         status: dbHealthy && apiKeyCount > 0 ? 200 : 503,
@@ -107,6 +130,28 @@ const server = Bun.serve({
         const deleted = runCleanupNow();
         return new Response(JSON.stringify({ deleted }), {
           headers: { "content-type": "application/json" }
+        });
+      }
+    }
+
+    // Apply rate limiting for ingest endpoints
+    if (url.pathname.startsWith("/ingest")) {
+      const clientIp = getClientIp(req, server);
+      const rateLimit = checkRateLimit(clientIp);
+
+      if (!rateLimit.allowed) {
+        return new Response(JSON.stringify({
+          error: "Too Many Requests",
+          message: "Rate limit exceeded",
+        }), {
+          status: 429,
+          headers: {
+            "content-type": "application/json",
+            "Retry-After": String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)),
+            "X-RateLimit-Limit": String(getRateLimitStats().maxRequests),
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": String(Math.floor(rateLimit.resetAt / 1000)),
+          },
         });
       }
     }
@@ -157,8 +202,10 @@ console.log(`[Listener] Loaded ${getApiKeyCount()} API key(s)`);
 const shutdown = () => {
   console.log("[Listener] Shutting down gracefully...");
 
-  // Stop cleanup job
+  // Stop all background services
   stopCleanupJob();
+  stopRateLimitCleanup();
+  stopUdpServer();
 
   // Stop accepting new connections (allow in-flight requests to complete)
   server.stop(false);
