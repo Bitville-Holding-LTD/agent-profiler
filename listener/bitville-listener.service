@@ -1,0 +1,58 @@
+# Installation:
+# 1. Create bitville user: sudo useradd -r -s /bin/false bitville
+# 2. Create directories:
+#    sudo mkdir -p /opt/bitville-listener /var/lib/bitville /etc/bitville
+# 3. Copy listener code: sudo cp -r listener/* /opt/bitville-listener/
+# 4. Set permissions:
+#    sudo chown -R bitville:bitville /opt/bitville-listener /var/lib/bitville
+# 5. Create env file: sudo cp .env.example /etc/bitville/listener.env
+#    Edit and add API keys
+# 6. Install service: sudo cp bitville-listener.service /etc/systemd/system/
+# 7. Enable and start:
+#    sudo systemctl daemon-reload
+#    sudo systemctl enable bitville-listener
+#    sudo systemctl start bitville-listener
+# 8. Check status: sudo systemctl status bitville-listener
+
+[Unit]
+Description=Bitville APM Central Listener
+Documentation=https://github.com/your-org/bitville-monitoring
+After=network.target
+
+[Service]
+Type=simple
+User=bitville
+Group=bitville
+WorkingDirectory=/opt/bitville-listener
+
+# Main process - Bun runs the TypeScript directly
+ExecStart=/home/bitville/.bun/bin/bun run /opt/bitville-listener/src/server.ts
+
+# Restart policy
+Restart=always
+RestartSec=5
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Environment
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/bitville/listener.env
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/bitville
+
+# Resource limits (adjust as needed)
+LimitNOFILE=65535
+MemoryMax=512M
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bitville-listener
+
+[Install]
+WantedBy=multi-user.target
