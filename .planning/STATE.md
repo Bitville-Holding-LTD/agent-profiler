@@ -16,7 +16,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 | Phase | Status | Plans | Progress | Commits |
 |-------|--------|-------|----------|---------|
-| 1 - PHP Agent Core Instrumentation & Safety | ◆ In Progress | 5/6 | 83% | c56ca2c, b6df167, def8a37 |
+| 1 - PHP Agent Core Instrumentation & Safety | ◆ In Progress | 5/6 | 83% | 713bf51, 980bb51, def8a37 |
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ○ Pending | 0/? | 0% | - |
 | 3 - Central Listener Data Reception & Storage | ○ Pending | 0/? | 0% | - |
 | 4 - Graylog Integration & Forwarding | ○ Pending | 0/? | 0% | - |
@@ -69,6 +69,7 @@ None currently.
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 01-05 - Request Metadata Collector (3 tasks, 2min 24sec)
 - 2026-01-27: Completed plan 01-02 - XHProf Integration (2 tasks, 2min 22sec)
 - 2026-01-27: Completed plan 01-04 - Socket Transmission Layer (3 tasks, 2min 12sec)
 - 2026-01-27: Completed plan 01-03 - SQL Capture Module (1 task, 1min 47sec)
@@ -82,6 +83,9 @@ None currently.
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Recursive filtering max depth 5 | Prevent infinite loops in nested data structures | 01-05 | 2026-01-27 |
+| String truncation at 1000/500 chars | Memory safety for large values/headers | 01-05 | 2026-01-27 |
+| 10 sensitive key patterns defined | Comprehensive coverage (password, token, api_key, etc.) | 01-05 | 2026-01-27 |
 | Unix datagram sockets (SOCK_DGRAM) | Fire-and-forget without connection overhead | 01-04 | 2026-01-27 |
 | SO_SNDTIMEO at socket level | Guaranteed 50ms timeout enforced by kernel | 01-04 | 2026-01-27 |
 | Atomic disk writes (tempnam+rename) | Prevent partial writes if buffer fallback occurs | 01-04 | 2026-01-27 |
@@ -104,4 +108,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T17:25:15Z - Completed plan 01-02 (XHProf Integration)
+Last activity: 2026-01-27T17:25:08Z - Completed plan 01-05 (Request Metadata Collector)
