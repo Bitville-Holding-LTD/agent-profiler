@@ -144,3 +144,155 @@ function get_memory_stats(): array
         return [];
     }
 }
+
+/**
+ * Summarize XHProf data with filtering and totals
+ *
+ * Filters out noise (functions < 1ms), sorts by wall time descending,
+ * and returns top N functions with percentage calculations.
+ *
+ * @param array $rawData Raw XHProf output from xhprof_disable()
+ * @param int $maxFunctions Maximum number of top functions to return (default 100)
+ * @return array Summary with total_calls, total_wall_time, and top_functions
+ */
+function xhprof_summarize(array $rawData, int $maxFunctions = 100): array
+{
+    if (empty($rawData)) {
+        return [
+            'total_calls' => 0,
+            'total_wall_time' => 0,
+            'top_functions' => []
+        ];
+    }
+
+    // Calculate totals and filter noise (< 1ms = 1000 microseconds)
+    $totalCalls = 0;
+    $totalWallTime = 0;
+    $filtered = [];
+
+    foreach ($rawData as $functionName => $metrics) {
+        $wt = $metrics['wt'] ?? 0;
+        $ct = $metrics['ct'] ?? 0;
+
+        $totalCalls += $ct;
+        $totalWallTime += $wt;
+
+        // Filter out functions with < 1ms total time (noise)
+        if ($wt >= 1000) {
+            $filtered[] = [
+                'name' => $functionName,
+                'ct' => $ct,
+                'wt' => $wt
+            ];
+        }
+    }
+
+    // Sort by wall time descending
+    usort($filtered, function ($a, $b) {
+        return $b['wt'] <=> $a['wt'];
+    });
+
+    // Take top N functions and calculate percentages
+    $topFunctions = [];
+    $topN = array_slice($filtered, 0, $maxFunctions);
+
+    foreach ($topN as $func) {
+        $topFunctions[] = [
+            'name' => $func['name'],
+            'calls' => $func['ct'],
+            'wall_time_us' => $func['wt'],
+            'wall_time_ms' => round($func['wt'] / 1000, 2),
+            'pct_of_total' => $totalWallTime > 0
+                ? round(($func['wt'] / $totalWallTime) * 100, 1)
+                : 0.0
+        ];
+    }
+
+    return [
+        'total_calls' => $totalCalls,
+        'total_wall_time' => $totalWallTime,
+        'top_functions' => $topFunctions
+    ];
+}
+
+/**
+ * Get hotspots - functions consuming more than threshold% of total time
+ *
+ * These are the most impactful functions worth investigating for optimization.
+ *
+ * @param array $rawData Raw XHProf output from xhprof_disable()
+ * @param float $threshold Minimum percentage of total time (default 5.0%)
+ * @return array Array of hotspot functions with name, percentage, and wall time
+ */
+function xhprof_get_hotspots(array $rawData, float $threshold = 5.0): array
+{
+    if (empty($rawData)) {
+        return [];
+    }
+
+    // Calculate total wall time
+    $totalWallTime = 0;
+    foreach ($rawData as $metrics) {
+        $totalWallTime += $metrics['wt'] ?? 0;
+    }
+
+    if ($totalWallTime === 0) {
+        return [];
+    }
+
+    // Find functions above threshold
+    $hotspots = [];
+    foreach ($rawData as $functionName => $metrics) {
+        $wt = $metrics['wt'] ?? 0;
+        $pct = ($wt / $totalWallTime) * 100;
+
+        if ($pct >= $threshold) {
+            $hotspots[] = [
+                'name' => $functionName,
+                'pct' => round($pct, 1),
+                'wall_time_ms' => round($wt / 1000, 2)
+            ];
+        }
+    }
+
+    // Sort by percentage descending
+    usort($hotspots, function ($a, $b) {
+        return $b['pct'] <=> $a['pct'];
+    });
+
+    return $hotspots;
+}
+
+/**
+ * Collect all profiling data - convenience function
+ *
+ * Stops XHProf, collects memory stats, summarizes profiling data,
+ * and identifies hotspots. Returns complete profiling package.
+ *
+ * @return array|null Complete profiling data or null if XHProf not started
+ */
+function xhprof_collect_all(): ?array
+{
+    // Stop profiling
+    $rawData = xhprof_stop();
+
+    if ($rawData === null) {
+        return null;
+    }
+
+    // Collect memory stats
+    $memoryStats = get_memory_stats();
+
+    // Summarize profiling data
+    $summary = xhprof_summarize($rawData);
+
+    // Get hotspots
+    $hotspots = xhprof_get_hotspots($rawData);
+
+    return [
+        'profiling' => $summary,
+        'hotspots' => $hotspots,
+        'memory' => $memoryStats,
+        'raw_count' => count($rawData)  // Total functions profiled
+    ];
+}
