@@ -16,9 +16,18 @@ class ComposerStaticInit66a9d6aa1c6a15eb97f8db64e686426f
             'React\\Stream\\' => 13,
             'React\\Socket\\' => 13,
             'React\\Promise\\' => 14,
+            'React\\Http\\' => 11,
             'React\\EventLoop\\' => 16,
             'React\\Dns\\' => 10,
             'React\\Cache\\' => 12,
+        ),
+        'P' =>
+        array (
+            'Psr\\Http\\Message\\' => 17,
+        ),
+        'F' =>
+        array (
+            'Fig\\Http\\Message\\' => 17,
         ),
         'E' =>
         array (
@@ -39,6 +48,10 @@ class ComposerStaticInit66a9d6aa1c6a15eb97f8db64e686426f
         array (
             0 => __DIR__ . '/..' . '/react/promise/src',
         ),
+        'React\\Http\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/react/http/src',
+        ),
         'React\\EventLoop\\' =>
         array (
             0 => __DIR__ . '/..' . '/react/event-loop/src',
@@ -50,6 +63,14 @@ class ComposerStaticInit66a9d6aa1c6a15eb97f8db64e686426f
         'React\\Cache\\' =>
         array (
             0 => __DIR__ . '/..' . '/react/cache/src',
+        ),
+        'Psr\\Http\\Message\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'Fig\\Http\\Message\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/fig/http-message-util/src',
         ),
         'Evenement\\' =>
         array (

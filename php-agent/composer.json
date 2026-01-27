@@ -4,7 +4,8 @@
     "require": {
         "php": ">=7.4",
         "react/socket": "^1.17",
-        "react/event-loop": "^1.6"
+        "react/event-loop": "^1.6",
+        "react/http": "^1.11"
     },
     "authors": [
         {
