@@ -143,12 +143,70 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (To be populated during roadmap creation) | - | - |
+| PHP-01 | Phase 1 | Pending |
+| PHP-02 | Phase 1 | Pending |
+| PHP-03 | Phase 1 | Pending |
+| PHP-04 | Phase 1 | Pending |
+| PHP-05 | Phase 1 | Pending |
+| PHP-06 | Phase 1 | Pending |
+| PHP-07 | Phase 1 | Pending |
+| PHP-08 | Phase 1 | Pending |
+| COMM-01 | Phase 1 | Pending |
+| COMM-02 | Phase 1 | Pending |
+| COMM-03 | Phase 1 | Pending |
+| COMM-04 | Phase 2 | Pending |
+| COMM-05 | Phase 2 | Pending |
+| COMM-06 | Phase 2 | Pending |
+| COMM-07 | Phase 2 | Pending |
+| DAEMON-01 | Phase 2 | Pending |
+| DAEMON-02 | Phase 2 | Pending |
+| DAEMON-03 | Phase 2 | Pending |
+| DAEMON-04 | Phase 2 | Pending |
+| DAEMON-05 | Phase 2 | Pending |
+| DAEMON-06 | Phase 2 | Pending |
+| LIST-01 | Phase 3 | Pending |
+| LIST-02 | Phase 3 | Pending |
+| LIST-03 | Phase 3 | Pending |
+| LIST-04 | Phase 3 | Pending |
+| LIST-05 | Phase 3 | Pending |
+| STOR-01 | Phase 3 | Pending |
+| STOR-02 | Phase 3 | Pending |
+| STOR-03 | Phase 3 | Pending |
+| STOR-04 | Phase 3 | Pending |
+| GELF-01 | Phase 4 | Pending |
+| GELF-02 | Phase 4 | Pending |
+| GELF-03 | Phase 4 | Pending |
+| GELF-04 | Phase 4 | Pending |
+| GELF-05 | Phase 4 | Pending |
+| PG-01 | Phase 5 | Pending |
+| PG-02 | Phase 5 | Pending |
+| PG-03 | Phase 5 | Pending |
+| PG-04 | Phase 5 | Pending |
+| PG-05 | Phase 5 | Pending |
+| PG-06 | Phase 5 | Pending |
+| PG-07 | Phase 5 | Pending |
+| PG-COMM-01 | Phase 5 | Pending |
+| PG-COMM-02 | Phase 5 | Pending |
+| PG-COMM-03 | Phase 5 | Pending |
+| PG-COMM-04 | Phase 5 | Pending |
+| QUERY-01 | Phase 6 | Pending |
+| QUERY-02 | Phase 6 | Pending |
+| QUERY-03 | Phase 6 | Pending |
+| QUERY-04 | Phase 6 | Pending |
+| QUERY-05 | Phase 6 | Pending |
+| QUERY-06 | Phase 6 | Pending |
+| CFG-01 | Phase 7 | Pending |
+| CFG-02 | Phase 7 | Pending |
+| CFG-03 | Phase 7 | Pending |
+| CFG-04 | Phase 7 | Pending |
+| CFG-05 | Phase 7 | Pending |
+| CFG-06 | Phase 7 | Pending |
+| CFG-07 | Phase 7 | Pending |
 
 **Coverage:**
 - v1 requirements: 48 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 48 ⚠️
+- Mapped to phases: 48
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-01-27*
