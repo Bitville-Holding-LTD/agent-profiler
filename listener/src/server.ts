@@ -23,11 +23,15 @@ import { initDatabase, getDatabase } from "./database/connection.ts";
 import { handlePhpAgent } from "./handlers/php-agent.ts";
 import { handlePostgresAgent } from "./handlers/postgres-agent.ts";
 import { getApiKeyCount } from "./middleware/auth.ts";
+import { startCleanupJob, stopCleanupJob, runCleanupNow, getCleanupStatus } from "./database/cleanup.ts";
 
 // Initialize database on startup
 console.log("[Listener] Initializing database...");
 const db = initDatabase();
 console.log("[Listener] Database initialized successfully");
+
+// Start hourly cleanup job
+startCleanupJob();
 
 // Configure server
 const PORT = Number(Bun.env.BITVILLE_PORT) || 8443;
@@ -66,16 +70,45 @@ const server = Bun.serve({
     if (req.method === "GET" && url.pathname === "/ready") {
       const dbHealthy = getDatabase() !== null;
       const apiKeyCount = getApiKeyCount();
+      const cleanup = getCleanupStatus();
 
       return new Response(JSON.stringify({
         ready: dbHealthy && apiKeyCount > 0,
         uptime: process.uptime(),
         database: dbHealthy ? "connected" : "disconnected",
         api_keys: apiKeyCount,
+        cleanup: {
+          running: cleanup.running,
+          nextRun: cleanup.nextRun?.toISOString(),
+          retentionDays: cleanup.retentionDays,
+        },
       }), {
         status: dbHealthy && apiKeyCount > 0 ? 200 : 503,
         headers: { "content-type": "application/json" },
       });
+    }
+
+    // Admin endpoints (optional, enabled via BITVILLE_ADMIN_ENABLED=true)
+    if (Bun.env.BITVILLE_ADMIN_ENABLED === "true") {
+      if (req.method === "POST" && url.pathname === "/admin/cleanup") {
+        // Import auth inline to avoid circular deps
+        const { authenticateRequest } = await import("./middleware/auth.ts");
+        const auth = authenticateRequest(req);
+        if (!auth.isValid) {
+          return new Response(JSON.stringify({
+            error: "Unauthorized",
+            message: "Valid API key required"
+          }), {
+            status: 401,
+            headers: { "content-type": "application/json" }
+          });
+        }
+
+        const deleted = runCleanupNow();
+        return new Response(JSON.stringify({ deleted }), {
+          headers: { "content-type": "application/json" }
+        });
+      }
     }
 
     // Ingestion endpoints (require POST)
@@ -121,37 +154,29 @@ console.log(`[Listener] Postgres agent endpoint: ${protocol.toLowerCase()}://loc
 console.log(`[Listener] Loaded ${getApiKeyCount()} API key(s)`);
 
 // Graceful shutdown handler
-process.on("SIGTERM", () => {
-  console.log("[Listener] Received SIGTERM, shutting down gracefully...");
+const shutdown = () => {
+  console.log("[Listener] Shutting down gracefully...");
+
+  // Stop cleanup job
+  stopCleanupJob();
 
   // Stop accepting new connections (allow in-flight requests to complete)
   server.stop(false);
 
-  // Close database connection
-  const database = getDatabase();
-  if (database) {
-    database.close();
-    console.log("[Listener] Database closed");
-  }
+  // Give requests 5 seconds to complete, then close database
+  setTimeout(() => {
+    const database = getDatabase();
+    if (database) {
+      database.close();
+      console.log("[Listener] Database closed");
+    }
+    console.log("[Listener] Shutdown complete");
+    process.exit(0);
+  }, 5000);
+};
 
-  console.log("[Listener] Shutdown complete");
-  process.exit(0);
-});
-
-process.on("SIGINT", () => {
-  console.log("[Listener] Received SIGINT, shutting down...");
-
-  // Stop server immediately
-  server.stop(true);
-
-  // Close database
-  const database = getDatabase();
-  if (database) {
-    database.close();
-  }
-
-  process.exit(0);
-});
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
 
 // Log unhandled errors (but don't crash)
 process.on("unhandledRejection", (reason, promise) => {
