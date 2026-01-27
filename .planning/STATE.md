@@ -16,7 +16,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 | Phase | Status | Plans | Progress | Commits |
 |-------|--------|-------|----------|---------|
-| 1 - PHP Agent Core Instrumentation & Safety | ◆ In Progress | 4/6 | 67% | def8a37, b79a3dc, ef56a13 |
+| 1 - PHP Agent Core Instrumentation & Safety | ◆ In Progress | 5/6 | 83% | c56ca2c, b6df167, def8a37 |
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ○ Pending | 0/? | 0% | - |
 | 3 - Central Listener Data Reception & Storage | ○ Pending | 0/? | 0% | - |
 | 4 - Graylog Integration & Forwarding | ○ Pending | 0/? | 0% | - |
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Legend:** ○ Pending | ◆ In Progress | ✓ Complete
 
-**Phase 1 Progress:** ░░░░░░░░░░░░░░░░░░░░░░░░██████████████████████████████████████████████████████████████████ 67% (4/6 plans)
+**Phase 1 Progress:** ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░█████████████████████████████████████████████████████████ 83% (5/6 plans)
 
 ## Milestone Overview
 
@@ -48,15 +48,16 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Requirements:** 11 requirements (PHP-01 to PHP-08, COMM-01 to COMM-03)
 
-**Progress:** 4/6 plans complete (67%)
+**Progress:** 5/6 plans complete (83%)
 
 **Completed:**
 - ✅ Plan 01-01: Configuration & Correlation Foundation
+- ✅ Plan 01-02: XHProf Integration
 - ✅ Plan 01-03: SQL Capture Module
 - ✅ Plan 01-04: Socket Transmission Layer
 - ✅ Plan 01-05: Request Metadata Collector
 
-**Next step:** Execute plan 01-02 (XHProf integration) and 01-06 (Integration layer)
+**Next step:** Execute plan 01-06 (Integration layer)
 
 ## Active Work
 
@@ -68,6 +69,7 @@ None currently.
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 01-02 - XHProf Integration (2 tasks, 2min 22sec)
 - 2026-01-27: Completed plan 01-04 - Socket Transmission Layer (3 tasks, 2min 12sec)
 - 2026-01-27: Completed plan 01-03 - SQL Capture Module (1 task, 1min 47sec)
 - 2026-01-27: Completed plan 01-01 - Configuration & Correlation Foundation (3 tasks, 2min 17sec)
@@ -88,6 +90,9 @@ None currently.
 | 500 query limit per request | Prevent memory exhaustion on query-heavy pages | 01-03 | 2026-01-27 |
 | 5-frame stack traces with no args | Privacy + performance balance | 01-03 | 2026-01-27 |
 | Redact sensitive data before storage | Security - password, token, secret, card patterns | 01-03 | 2026-01-27 |
+| XHPROF_FLAGS_NO_BUILTINS only | Avoid 200-300% overhead from CPU/memory flags | 01-02 | 2026-01-27 |
+| Noise filtering at 1ms threshold | Remove clutter, focus on impactful functions | 01-02 | 2026-01-27 |
+| Memory tracking via PHP functions | Independent of XHProf, no performance penalty | 01-02 | 2026-01-27 |
 | INI format for configuration | Easy manual editing without PHP knowledge | 01-01 | 2026-01-27 |
 | Static caching in config loader | Zero overhead after first read (0.000025ms per call) | 01-01 | 2026-01-27 |
 | UUID v4 for correlation IDs | Globally unique, RFC 4122 compliant, proven format | 01-01 | 2026-01-27 |
@@ -99,4 +104,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T17:24:58Z - Completed plan 01-04 (Socket Transmission Layer)
+Last activity: 2026-01-27T17:25:15Z - Completed plan 01-02 (XHProf Integration)
