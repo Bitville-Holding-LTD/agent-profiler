@@ -1,0 +1,54 @@
+# Bitville APM Daemon - Systemd Service
+#
+# Installation:
+#   sudo cp config/bitville-apm-daemon.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable bitville-apm-daemon
+#   sudo systemctl start bitville-apm-daemon
+#
+# Management:
+#   sudo systemctl status bitville-apm-daemon
+#   sudo systemctl restart bitville-apm-daemon
+#   sudo systemctl stop bitville-apm-daemon
+#   sudo journalctl -u bitville-apm-daemon -f
+
+[Unit]
+Description=Bitville APM Daemon
+Documentation=https://github.com/your-org/bitville-monitoring
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/project/profiling/daemon
+ExecStart=/usr/bin/php /var/www/project/profiling/daemon/daemon.php
+
+# Restart policy
+Restart=always
+RestartSec=5
+
+# Graceful shutdown - wait up to 30 seconds
+TimeoutStopSec=30
+
+# Remove restart limits (always restart on failure)
+StartLimitIntervalSec=0
+
+# Environment
+Environment="PATH=/usr/bin:/usr/local/bin"
+
+# Logging to journald
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bitville-apm-daemon
+
+# Runtime directory creation
+RuntimeDirectory=bitville-apm
+RuntimeDirectoryMode=0755
+
+# State directory for buffers
+StateDirectory=bitville-apm
+StateDirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target
