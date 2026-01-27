@@ -19,7 +19,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | 1 - PHP Agent Core Instrumentation & Safety | ✓ Complete | 6/6 | 100% | a2b8ae0, 713bf51, 980bb51, def8a37 |
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ✓ Complete | 4/4 | 100% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
 | 3 - Central Listener Data Reception & Storage | ✓ Complete | 4/4 | 100% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb, d328387, 947b3d4, 9b77fec |
-| 4 - Graylog Integration & Forwarding | ◆ In Progress | 1/? | ~25% | 41a6638, 51b99d6 |
+| 4 - Graylog Integration & Forwarding | ◆ In Progress | 2/? | ~50% | 41a6638, 51b99d6, 333e848, 1f069a7 |
 | 5 - Postgres Agent Database Monitoring | ○ Pending | 0/? | 0% | - |
 | 6 - Query Interface & Visualization | ○ Pending | 0/? | 0% | - |
 | 7 - Configuration & Deployment | ○ Pending | 0/? | 0% | - |
@@ -46,10 +46,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Goal:** Forward all profiling data to Graylog with resilient buffering and replay
 
-**Status:** In Progress - Plan 04-01 complete
+**Status:** In Progress - Plans 04-01, 04-02 complete
 
 **Progress:**
 - ✅ Plan 04-01: Database Foundation and GELF Client (forwarded_to_graylog tracking, gelf-pro TCP client, replay query functions)
+- ✅ Plan 04-02: Circuit Breaker and Forwarder (opossum circuit breaker, state persistence, GELF message building)
 
 **Phase 3 (COMPLETE):** Central Listener Data Reception & Storage
 - ✅ All 4 plans complete:
@@ -74,16 +75,17 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 ## Active Work
 
-**Phase 4 - Plan 04-01 COMPLETE:** Database foundation for Graylog forwarding with tracking column and GELF TCP client.
+**Phase 4 - Plan 04-02 COMPLETE:** Circuit breaker with state persistence and forwarder module.
 
-**Next:** Plan 04-02 - Forwarder implementation with async GELF message sending.
+**Next:** Plan 04-03 - Replay integration for buffered records.
 
 ## Blockers/Concerns
 
-None - database tracking and GELF client module ready for forwarder implementation.
+None - circuit breaker and forwarder module ready for replay integration.
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 04-02 - Circuit Breaker and Forwarder (2 tasks, 2min 57sec)
 - 2026-01-27: Completed plan 04-01 - Database Foundation and GELF Client (2 tasks, 2min 31sec)
 - 2026-01-27: **🎉 PHASE 3 COMPLETE** - Central Listener Data Reception & Storage (4/4 plans)
 - 2026-01-27: Completed plan 03-04 - UDP Receiver and Rate Limiting (3 tasks, 4min 37sec)
@@ -111,6 +113,11 @@ None - database tracking and GELF client module ready for forwarder implementati
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Recovery callback via setImmediate | Non-blocking trigger of replay when circuit closes, prevents blocking state transition | 04-02 | 2026-01-27 |
+| GELF message extracts request context | _url, _method, _status_code extracted from payload for Graylog filtering | 04-02 | 2026-01-27 |
+| Graceful markAsForwarded handling | Try-catch for database calls in disabled mode ensures test compatibility | 04-02 | 2026-01-27 |
+| Circuit breaker volume threshold 5 | Need 5 requests before calculating failure percentage, prevents false opens on startup | 04-02 | 2026-01-27 |
+| State persistence restores OPEN only if <60s elapsed | Expired OPEN state (>60s old) starts fresh in CLOSED, avoids permanent open state | 04-02 | 2026-01-27 |
 | GELF client disabled by default | Safe rollout without requiring Graylog server upfront, opt-in via GRAYLOG_ENABLED=true | 04-01 | 2026-01-27 |
 | Composite index (forwarded_to_graylog, id) | Efficient FIFO replay queries with single index scan for filter+order | 04-01 | 2026-01-27 |
 | Dual default pattern for migration | Existing records DEFAULT 1 (assume sent), new inserts explicit 0 (pending) prevents replay storm | 04-01 | 2026-01-27 |
@@ -187,4 +194,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T21:12:59Z - Completed plan 04-01 (Database Foundation and GELF Client)
+Last activity: 2026-01-27T21:20:58Z - Completed plan 04-02 (Circuit Breaker and Forwarder)
