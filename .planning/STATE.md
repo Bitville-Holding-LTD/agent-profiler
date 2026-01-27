@@ -18,7 +18,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 |-------|--------|-------|----------|---------|
 | 1 - PHP Agent Core Instrumentation & Safety | ✓ Complete | 6/6 | 100% | a2b8ae0, 713bf51, 980bb51, def8a37 |
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ✓ Complete | 4/4 | 100% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
-| 3 - Central Listener Data Reception & Storage | ◆ In Progress | 3/? | ~60% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb |
+| 3 - Central Listener Data Reception & Storage | ◆ In Progress | 4/? | ~75% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb, d328387, 947b3d4, 9b77fec |
 | 4 - Graylog Integration & Forwarding | ○ Pending | 0/? | 0% | - |
 | 5 - Postgres Agent Database Monitoring | ○ Pending | 0/? | 0% | - |
 | 6 - Query Interface & Visualization | ○ Pending | 0/? | 0% | - |
@@ -37,8 +37,8 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Requirements coverage:**
 - Total v1 requirements: 48
-- Completed: 17 (Phase 1-2: PHP-01 to PHP-08, COMM-01 to COMM-03, DAEMON-01 to DAEMON-04, Phase 3: STOR-01, STOR-02, LIST-01 to LIST-04)
-- Remaining: 31
+- Completed: 18 (Phase 1-2: PHP-01 to PHP-08, COMM-01 to COMM-03, DAEMON-01 to DAEMON-04, Phase 3: STOR-01, STOR-02, LIST-01 to LIST-05)
+- Remaining: 30
 
 ## Current Phase
 
@@ -46,12 +46,13 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Goal:** Central server receives, stores, and correlates profiling data from multiple agents
 
-**Status:** In Progress - Plans 03-01, 03-02, and 03-03 complete
+**Status:** In Progress - Plans 03-01, 03-02, 03-03, and 03-04 complete
 
 **Progress:**
 - ✅ Plan 03-01: Database Foundation (SQLite with WAL mode, unified profiling_data table, prepared statements)
 - ✅ Plan 03-02: HTTP Server with Authentication (Bun server, Bearer token auth, Zod validation, dual ingestion endpoints)
 - ✅ Plan 03-03: Retention Policy and Systemd Service (7-day cleanup cron, incremental vacuum, systemd with security hardening)
+- ✅ Plan 03-04: UDP Receiver and Rate Limiting (UDP fire-and-forget ingestion, sliding window rate limiting, dual-protocol server)
 
 **Phase 2 (COMPLETE):** PHP Agent Daemon Architecture & Lifecycle
 - ✅ All 4 requirements delivered (DAEMON-01 to DAEMON-04)
@@ -69,16 +70,17 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 ## Active Work
 
-**Phase 3 - Plan 03-03 COMPLETE:** Retention policy with 7-day cleanup, systemd service with security hardening.
+**Phase 3 - Plan 03-04 COMPLETE:** UDP receiver with rate limiting for dual-protocol ingestion.
 
 **Next:** Phase 4 (Graylog Integration) or continue Phase 3 if additional plans exist.
 
 ## Blockers/Concerns
 
-None - central listener foundation complete (database, HTTP ingestion, retention). Ready for Graylog integration.
+None - central listener foundation complete (database, HTTP/UDP ingestion, rate limiting, retention). Ready for Graylog integration.
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 03-04 - UDP Receiver and Rate Limiting (3 tasks, 4min 37sec)
 - 2026-01-27: Completed plan 03-03 - Retention Policy and Systemd Service (3 tasks, 3min 6sec)
 - 2026-01-27: Completed plan 03-02 - HTTP Server with Authentication (3 tasks, 4min 39sec)
 - 2026-01-27: Completed plan 03-01 - Database Foundation (3 tasks, 3min 8sec)
@@ -103,6 +105,13 @@ None - central listener foundation complete (database, HTTP ingestion, retention
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Rate limiting before authentication | Prevents auth bypass attempts and protects auth middleware from DDoS | 03-04 | 2026-01-27 |
+| 429 responses include RFC headers | Retry-After, X-RateLimit-* headers provide client guidance for rate limits | 03-04 | 2026-01-27 |
+| Rate limit cleanup every 5 minutes | Removes stale entries (>2 minutes old) to prevent memory growth | 03-04 | 2026-01-27 |
+| In-memory rate limit tracking | Simple Map storage sufficient for single-instance, avoids database overhead | 03-04 | 2026-01-27 |
+| Rate limiting: 100 requests/minute per IP | Prevents abuse without impacting normal usage, configurable via BITVILLE_RATE_LIMIT | 03-04 | 2026-01-27 |
+| No authentication on UDP | UDP has no headers, intended for firewalled internal network | 03-04 | 2026-01-27 |
+| UDP port 8444 separate from HTTPS 8443 | Clarity and firewall rule simplicity for dual-protocol server | 03-04 | 2026-01-27 |
 | systemd security hardening enabled | Defense in depth: NoNewPrivileges, ProtectSystem, ProtectHome, PrivateTmp | 03-03 | 2026-01-27 |
 | Admin cleanup endpoint requires BITVILLE_ADMIN_ENABLED | Manual cleanup is administrative operation, opt-in prevents exposure | 03-03 | 2026-01-27 |
 | Graceful shutdown with 5-second timeout for in-flight requests | Allow HTTP requests to complete during restart without data loss | 03-03 | 2026-01-27 |
@@ -169,4 +178,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T20:11:55Z - Completed plan 03-03 (Retention Policy and Systemd Service)
+Last activity: 2026-01-27T20:19:22Z - Completed plan 03-04 (UDP Receiver and Rate Limiting)
