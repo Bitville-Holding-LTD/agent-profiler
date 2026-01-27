@@ -11,7 +11,12 @@
       "WebFetch(domain:betterstack.com)",
       "WebFetch(domain:www.elastic.co)",
       "WebFetch(domain:opentelemetry.io)",
-      "WebFetch(domain:docs.datadoghq.com)"
+      "WebFetch(domain:docs.datadoghq.com)",
+      "Skill(gsd:execute-phase)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Bash(git remote add:*)"
     ]
   }
 }
