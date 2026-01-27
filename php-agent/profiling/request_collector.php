@@ -243,3 +243,109 @@ function filter_file_uploads(): array
 
     return $files;
 }
+
+/**
+ * Request timer for tracking elapsed time
+ */
+class RequestTimer
+{
+    private static $startTime = null;
+
+    /**
+     * Start timing (call at request start)
+     */
+    public static function start(): void
+    {
+        self::$startTime = microtime(true);
+    }
+
+    /**
+     * Get elapsed time in milliseconds
+     *
+     * @return float Elapsed ms
+     */
+    public static function elapsed(): float
+    {
+        if (self::$startTime === null) {
+            // Fallback to REQUEST_TIME_FLOAT if available
+            self::$startTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? microtime(true);
+        }
+
+        return (microtime(true) - self::$startTime) * 1000;
+    }
+
+    /**
+     * Check if elapsed time exceeds threshold
+     *
+     * @param float $thresholdMs Threshold in milliseconds
+     * @return bool True if exceeded
+     */
+    public static function exceeds(float $thresholdMs): bool
+    {
+        return self::elapsed() >= $thresholdMs;
+    }
+
+    /**
+     * Get timing data
+     *
+     * @return array Timing information
+     */
+    public static function getData(): array
+    {
+        return [
+            'start_time' => self::$startTime,
+            'elapsed_ms' => self::elapsed(),
+            'request_time_float' => $_SERVER['REQUEST_TIME_FLOAT'] ?? null,
+        ];
+    }
+}
+
+/**
+ * Collect response information (call at request end)
+ *
+ * @return array Response info
+ */
+function collect_response_info(): array
+{
+    return [
+        'status_code' => http_response_code() ?: 200,
+        'headers_sent' => headers_sent(),
+        'output_buffering' => ob_get_level() > 0,
+        'content_type' => null,  // Will be set from headers if available
+    ];
+}
+
+/**
+ * Collect complete request data package
+ *
+ * @return array All request metadata
+ */
+function collect_all_request_data(): array
+{
+    return [
+        'request' => collect_request_metadata(),
+        'response' => collect_response_info(),
+        'timing' => RequestTimer::getData(),
+    ];
+}
+
+/**
+ * Initialize request timing
+ * Call this at the very start of listener.php
+ */
+function init_request_timer(): void
+{
+    RequestTimer::start();
+}
+
+/**
+ * Check if request exceeds profiling threshold
+ *
+ * @return bool True if should profile
+ */
+function should_profile(): bool
+{
+    $config = get_profiling_config();
+    $threshold = $config['profiling_threshold_ms'] ?? 500;
+    return RequestTimer::exceeds($threshold);
+}
