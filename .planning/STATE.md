@@ -18,7 +18,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 |-------|--------|-------|----------|---------|
 | 1 - PHP Agent Core Instrumentation & Safety | ✓ Complete | 6/6 | 100% | a2b8ae0, 713bf51, 980bb51, def8a37 |
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ✓ Complete | 4/4 | 100% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
-| 3 - Central Listener Data Reception & Storage | ◆ In Progress | 1/? | ~20% | 410eadc, b6018b5, d01a214 |
+| 3 - Central Listener Data Reception & Storage | ◆ In Progress | 2/? | ~40% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa |
 | 4 - Graylog Integration & Forwarding | ○ Pending | 0/? | 0% | - |
 | 5 - Postgres Agent Database Monitoring | ○ Pending | 0/? | 0% | - |
 | 6 - Query Interface & Visualization | ○ Pending | 0/? | 0% | - |
@@ -46,10 +46,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Goal:** Central server receives, stores, and correlates profiling data from multiple agents
 
-**Status:** In Progress - Plan 03-01 complete
+**Status:** In Progress - Plans 03-01 and 03-02 complete
 
 **Progress:**
 - ✅ Plan 03-01: Database Foundation (SQLite with WAL mode, unified profiling_data table, prepared statements)
+- ✅ Plan 03-02: HTTP Server with Authentication (Bun server, Bearer token auth, Zod validation, dual ingestion endpoints)
 
 **Phase 2 (COMPLETE):** PHP Agent Daemon Architecture & Lifecycle
 - ✅ All 4 requirements delivered (DAEMON-01 to DAEMON-04)
@@ -67,16 +68,17 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 ## Active Work
 
-**Phase 3 - Plan 03-01 COMPLETE:** Database foundation with SQLite WAL mode, unified table, and prepared statements.
+**Phase 3 - Plan 03-02 COMPLETE:** HTTP server with authentication, validation, and ingestion endpoints.
 
-**Next:** Plan 03-02 (HTTP Ingestion) - Bun HTTP server with TLS, API key authentication, and request handlers.
+**Next:** Plan 03-03 (Retention & Cleanup) - Automatic data retention with configurable policies.
 
 ## Blockers/Concerns
 
-None - database layer complete and ready for HTTP ingestion layer.
+None - database and HTTP ingestion layers complete. Ready for retention policies and Graylog integration.
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 03-02 - HTTP Server with Authentication (3 tasks, 4min 39sec)
 - 2026-01-27: Completed plan 03-01 - Database Foundation (3 tasks, 3min 8sec)
 - 2026-01-27: **🎉 PHASE 2 COMPLETE** - PHP Agent Daemon Architecture & Lifecycle (4/4 plans, 4 requirements)
 - 2026-01-27: Completed plan 02-04 - Daemon Integration & Process Management (4 tasks, 3min 39sec)
@@ -99,6 +101,11 @@ None - database layer complete and ready for HTTP ingestion layer.
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Graceful shutdown allows in-flight requests | Prevent data loss during listener restart (Kubernetes/systemd) | 03-02 | 2026-01-27 |
+| Static /health endpoint, dynamic /ready with diagnostics | Health checks fast for frequent polling, readiness detailed for debugging | 03-02 | 2026-01-27 |
+| TLS optional: HTTPS when certs provided, HTTP fallback | Simplify development without cert generation, support production security | 03-02 | 2026-01-27 |
+| Use authenticated project name, not payload project field | Security - trust API key authentication to prevent project impersonation | 03-02 | 2026-01-27 |
+| API keys cached at module initialization | Scanning environment per-request wasteful, O(1) lookup from Map | 03-02 | 2026-01-27 |
 | Prepared statements for all queries | SQL injection protection and query plan caching | 03-01 | 2026-01-27 |
 | Runtime environment variable reading | DB path read in initDatabase() for testability | 03-01 | 2026-01-27 |
 | Partial index on duration_ms | WHERE clause excludes NULL values for smaller index size | 03-01 | 2026-01-27 |
@@ -154,4 +161,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T19:59:27Z - Completed plan 03-01 (Database Foundation)
+Last activity: 2026-01-27T20:06:33Z - Completed plan 03-02 (HTTP Server with Authentication)
