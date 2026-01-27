@@ -26,11 +26,30 @@ import { getApiKeyCount } from "./middleware/auth.ts";
 import { startCleanupJob, stopCleanupJob, runCleanupNow, getCleanupStatus } from "./database/cleanup.ts";
 import { checkRateLimit, getClientIp, startRateLimitCleanup, stopRateLimitCleanup, getRateLimitStats } from "./middleware/rate-limit.ts";
 import { startUdpServer, stopUdpServer, getUdpStats } from "./handlers/udp-receiver.ts";
+import { initGelfClient, getGraylogStatus } from "./graylog/client.ts";
+import { createCircuitBreaker, getCircuitBreakerStatus } from "./graylog/circuit-breaker.ts";
+import { replayUnforwardedRecords, getReplayStatus } from "./graylog/replay.ts";
 
 // Initialize database on startup
 console.log("[Listener] Initializing database...");
 const db = initDatabase();
 console.log("[Listener] Database initialized successfully");
+
+// Initialize Graylog integration
+console.log("[Listener] Initializing Graylog integration...");
+const graylogEnabled = initGelfClient();
+if (graylogEnabled) {
+  // Create circuit breaker with replay callback
+  createCircuitBreaker(() => {
+    // Called when circuit closes (Graylog recovers)
+    replayUnforwardedRecords().catch(err => {
+      console.error("[Listener] Replay failed:", err);
+    });
+  });
+  console.log("[Listener] Graylog integration initialized");
+} else {
+  console.log("[Listener] Graylog integration disabled");
+}
 
 // Start hourly cleanup job
 startCleanupJob();
@@ -84,6 +103,9 @@ const server = Bun.serve({
       const cleanup = getCleanupStatus();
       const udp = getUdpStats();
       const rateLimit = getRateLimitStats();
+      const graylog = getGraylogStatus();
+      const circuitBreaker = getCircuitBreakerStatus();
+      const replay = getReplayStatus();
 
       return new Response(JSON.stringify({
         ready: dbHealthy && apiKeyCount > 0,
@@ -104,6 +126,19 @@ const server = Bun.serve({
         rateLimit: {
           activeIps: rateLimit.activeIps,
           maxRequests: rateLimit.maxRequests,
+        },
+        graylog: {
+          enabled: graylog.enabled,
+          host: graylog.host,
+          port: graylog.port,
+          initialized: graylog.initialized,
+          circuitBreaker: circuitBreaker.state,
+          stats: circuitBreaker.stats,
+        },
+        replay: {
+          pending: replay.pendingCount,
+          isReplaying: replay.isReplaying,
+          lastReplay: replay.lastReplay,
         },
       }), {
         status: dbHealthy && apiKeyCount > 0 ? 200 : 503,
@@ -197,6 +232,10 @@ console.log(`[Listener] Readiness check: ${protocol.toLowerCase()}://localhost:$
 console.log(`[Listener] PHP agent endpoint: ${protocol.toLowerCase()}://localhost:${PORT}/ingest/php`);
 console.log(`[Listener] Postgres agent endpoint: ${protocol.toLowerCase()}://localhost:${PORT}/ingest/postgres`);
 console.log(`[Listener] Loaded ${getApiKeyCount()} API key(s)`);
+if (graylogEnabled) {
+  const graylog = getGraylogStatus();
+  console.log(`[Listener] Graylog forwarding: ${graylog.host}:${graylog.port}`);
+}
 
 // Graceful shutdown handler
 const shutdown = () => {
@@ -206,6 +245,7 @@ const shutdown = () => {
   stopCleanupJob();
   stopRateLimitCleanup();
   stopUdpServer();
+  // Note: Graylog circuit breaker state is already persisted on state changes
 
   // Stop accepting new connections (allow in-flight requests to complete)
   server.stop(false);
