@@ -143,18 +143,25 @@ Plans:
 
 **Requirements:** GELF-01, GELF-02, GELF-03, GELF-04, GELF-05
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md - Database migration and GELF client setup
+- [ ] 04-02-PLAN.md - Circuit breaker and forwarder module
+- [ ] 04-03-PLAN.md - Handler integration and replay mechanism
+
 **Success Criteria:**
 1. All received data is forwarded to Graylog in GELF format over TCP
-2. graylog2/gelf-php 1.7.x library is used for PHP 7.4 compatibility
+2. gelf-pro library used for Node.js/Bun compatibility (equivalent to PHP 7.4 GELF support)
 3. Circuit breaker detects Graylog unavailability and fails fast
 4. Data is buffered in SQLite during Graylog outages
 5. Buffered data is replayed to Graylog when connection recovers
 6. Project identifier is included in all GELF messages for filtering
 
 **Deliverables:**
-- GELF exporter using graylog2/gelf-php 1.7.x
-- Circuit breaker for Graylog connection
-- Retry queue in SQLite
+- GELF exporter using gelf-pro library
+- Circuit breaker for Graylog connection (opossum)
+- Retry queue in SQLite (forwarded_to_graylog column)
 - Replay mechanism for buffered data
 - GELF field mapping (correlation_id, project, custom fields)
 - Connection health monitoring
@@ -285,4 +292,4 @@ Plans:
 
 ---
 
-*Last updated: 2026-01-27 after Phase 3 completion*
+*Last updated: 2026-01-27 after Phase 4 planning*
