@@ -56,18 +56,18 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Listener Server - Data Reception
 
-- [ ] **LIST-01**: Receive profiling data from multiple PHP agents via HTTP/UDP
-- [ ] **LIST-02**: Receive monitoring data from Postgres agent via HTTP
-- [ ] **LIST-03**: Accept connections only from authorized servers (firewall configuration)
-- [ ] **LIST-04**: Parse incoming data into structured format
-- [ ] **LIST-05**: Correlate PHP requests with database activity via correlation ID
+- [x] **LIST-01**: Receive profiling data from multiple PHP agents via HTTP/UDP
+- [x] **LIST-02**: Receive monitoring data from Postgres agent via HTTP
+- [x] **LIST-03**: Accept connections only from authorized servers (firewall configuration)
+- [x] **LIST-04**: Parse incoming data into structured format
+- [x] **LIST-05**: Correlate PHP requests with database activity via correlation ID
 
 ### Listener Server - Storage & Retention
 
-- [ ] **STOR-01**: Store all data in SQLite database with WAL mode
-- [ ] **STOR-02**: Implement 7-day automatic retention (auto-delete old records)
-- [ ] **STOR-03**: Index by correlation ID, project, timestamp, duration for fast queries
-- [ ] **STOR-04**: Support multi-project data separation and filtering
+- [x] **STOR-01**: Store all data in SQLite database with WAL mode
+- [x] **STOR-02**: Implement 7-day automatic retention (auto-delete old records)
+- [x] **STOR-03**: Index by correlation ID, project, timestamp, duration for fast queries
+- [x] **STOR-04**: Support multi-project data separation and filtering
 
 ### Listener Server - Graylog Integration
 
@@ -164,15 +164,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DAEMON-04 | Phase 2 | Pending |
 | DAEMON-05 | Phase 2 | Pending |
 | DAEMON-06 | Phase 2 | Pending |
-| LIST-01 | Phase 3 | Pending |
-| LIST-02 | Phase 3 | Pending |
-| LIST-03 | Phase 3 | Pending |
-| LIST-04 | Phase 3 | Pending |
-| LIST-05 | Phase 3 | Pending |
-| STOR-01 | Phase 3 | Pending |
-| STOR-02 | Phase 3 | Pending |
-| STOR-03 | Phase 3 | Pending |
-| STOR-04 | Phase 3 | Pending |
+| LIST-01 | Phase 3 | Complete |
+| LIST-02 | Phase 3 | Complete |
+| LIST-03 | Phase 3 | Complete |
+| LIST-04 | Phase 3 | Complete |
+| LIST-05 | Phase 3 | Complete |
+| STOR-01 | Phase 3 | Complete |
+| STOR-02 | Phase 3 | Complete |
+| STOR-03 | Phase 3 | Complete |
+| STOR-04 | Phase 3 | Complete |
 | GELF-01 | Phase 4 | Pending |
 | GELF-02 | Phase 4 | Pending |
 | GELF-03 | Phase 4 | Pending |
@@ -210,4 +210,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-27*
-*Last updated: 2026-01-27 after initial definition*
+*Last updated: 2026-01-27 after Phase 3 completion*
