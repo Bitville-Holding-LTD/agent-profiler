@@ -18,7 +18,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 |-------|--------|-------|----------|---------|
 | 1 - PHP Agent Core Instrumentation & Safety | ✓ Complete | 6/6 | 100% | a2b8ae0, 713bf51, 980bb51, def8a37 |
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ✓ Complete | 4/4 | 100% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
-| 3 - Central Listener Data Reception & Storage | ◆ In Progress | 2/? | ~40% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa |
+| 3 - Central Listener Data Reception & Storage | ◆ In Progress | 3/? | ~60% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb |
 | 4 - Graylog Integration & Forwarding | ○ Pending | 0/? | 0% | - |
 | 5 - Postgres Agent Database Monitoring | ○ Pending | 0/? | 0% | - |
 | 6 - Query Interface & Visualization | ○ Pending | 0/? | 0% | - |
@@ -37,8 +37,8 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Requirements coverage:**
 - Total v1 requirements: 48
-- Completed: 15 (Phase 1-2: PHP-01 to PHP-08, COMM-01 to COMM-03, DAEMON-01 to DAEMON-04)
-- Remaining: 33
+- Completed: 17 (Phase 1-2: PHP-01 to PHP-08, COMM-01 to COMM-03, DAEMON-01 to DAEMON-04, Phase 3: STOR-01, STOR-02, LIST-01 to LIST-04)
+- Remaining: 31
 
 ## Current Phase
 
@@ -46,11 +46,12 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Goal:** Central server receives, stores, and correlates profiling data from multiple agents
 
-**Status:** In Progress - Plans 03-01 and 03-02 complete
+**Status:** In Progress - Plans 03-01, 03-02, and 03-03 complete
 
 **Progress:**
 - ✅ Plan 03-01: Database Foundation (SQLite with WAL mode, unified profiling_data table, prepared statements)
 - ✅ Plan 03-02: HTTP Server with Authentication (Bun server, Bearer token auth, Zod validation, dual ingestion endpoints)
+- ✅ Plan 03-03: Retention Policy and Systemd Service (7-day cleanup cron, incremental vacuum, systemd with security hardening)
 
 **Phase 2 (COMPLETE):** PHP Agent Daemon Architecture & Lifecycle
 - ✅ All 4 requirements delivered (DAEMON-01 to DAEMON-04)
@@ -64,20 +65,21 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 - ✅ All 11 requirements delivered (PHP-01 to PHP-08, COMM-01 to COMM-03)
 - ✅ All 6 plans complete
 
-**Next step:** Continue Phase 3 plans (HTTP ingestion, retention, etc.)
+**Next step:** Continue Phase 3 plans (Graylog integration, etc.)
 
 ## Active Work
 
-**Phase 3 - Plan 03-02 COMPLETE:** HTTP server with authentication, validation, and ingestion endpoints.
+**Phase 3 - Plan 03-03 COMPLETE:** Retention policy with 7-day cleanup, systemd service with security hardening.
 
-**Next:** Plan 03-03 (Retention & Cleanup) - Automatic data retention with configurable policies.
+**Next:** Phase 4 (Graylog Integration) or continue Phase 3 if additional plans exist.
 
 ## Blockers/Concerns
 
-None - database and HTTP ingestion layers complete. Ready for retention policies and Graylog integration.
+None - central listener foundation complete (database, HTTP ingestion, retention). Ready for Graylog integration.
 
 ## Recent Activity
 
+- 2026-01-27: Completed plan 03-03 - Retention Policy and Systemd Service (3 tasks, 3min 6sec)
 - 2026-01-27: Completed plan 03-02 - HTTP Server with Authentication (3 tasks, 4min 39sec)
 - 2026-01-27: Completed plan 03-01 - Database Foundation (3 tasks, 3min 8sec)
 - 2026-01-27: **🎉 PHASE 2 COMPLETE** - PHP Agent Daemon Architecture & Lifecycle (4/4 plans, 4 requirements)
@@ -101,6 +103,12 @@ None - database and HTTP ingestion layers complete. Ready for retention policies
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| systemd security hardening enabled | Defense in depth: NoNewPrivileges, ProtectSystem, ProtectHome, PrivateTmp | 03-03 | 2026-01-27 |
+| Admin cleanup endpoint requires BITVILLE_ADMIN_ENABLED | Manual cleanup is administrative operation, opt-in prevents exposure | 03-03 | 2026-01-27 |
+| Graceful shutdown with 5-second timeout for in-flight requests | Allow HTTP requests to complete during restart without data loss | 03-03 | 2026-01-27 |
+| Incremental vacuum reclaims 100 pages after cleanup | Non-blocking disk space reclamation without VACUUM lock | 03-03 | 2026-01-27 |
+| 7-day retention period (604800 seconds) | STOR-02 requirement for profiling data retention | 03-03 | 2026-01-27 |
+| Cleanup runs hourly at minute 0 with immediate startup execution | Prevent disk exhaustion, clean accumulated data from downtime | 03-03 | 2026-01-27 |
 | Graceful shutdown allows in-flight requests | Prevent data loss during listener restart (Kubernetes/systemd) | 03-02 | 2026-01-27 |
 | Static /health endpoint, dynamic /ready with diagnostics | Health checks fast for frequent polling, readiness detailed for debugging | 03-02 | 2026-01-27 |
 | TLS optional: HTTPS when certs provided, HTTP fallback | Simplify development without cert generation, support production security | 03-02 | 2026-01-27 |
@@ -161,4 +169,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T20:06:33Z - Completed plan 03-02 (HTTP Server with Authentication)
+Last activity: 2026-01-27T20:11:55Z - Completed plan 03-03 (Retention Policy and Systemd Service)
