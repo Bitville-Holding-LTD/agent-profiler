@@ -176,6 +176,14 @@ Plans:
 
 **Requirements:** PG-01, PG-02, PG-03, PG-04, PG-05, PG-06, PG-07, PG-COMM-01, PG-COMM-02, PG-COMM-03, PG-COMM-04
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 05-01-PLAN.md - Python project foundation with configuration and connection pool
+- [ ] 05-02-PLAN.md - Data collectors (pg_stat_activity, pg_stat_statements, locks, system metrics)
+- [ ] 05-03-PLAN.md - Log parser and transmission layer (circuit breaker, buffering)
+- [ ] 05-04-PLAN.md - Daemon integration and systemd service
+
 **Success Criteria:**
 1. Agent queries pg_stat_activity every minute for active queries and locks
 2. Agent queries pg_stat_statements for query performance statistics
@@ -292,4 +300,4 @@ Plans:
 
 ---
 
-*Last updated: 2026-01-27 after Phase 4 planning*
+*Last updated: 2026-01-28 after Phase 5 planning*
