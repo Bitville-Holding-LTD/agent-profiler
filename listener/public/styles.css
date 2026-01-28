@@ -1,0 +1,124 @@
+/* Dashboard-specific styles extending Pico CSS */
+
+/* Layout adjustments */
+.container {
+  max-width: 1400px;
+}
+
+/* Search form */
+#search-section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: var(--pico-card-background-color);
+  border-radius: var(--pico-border-radius);
+}
+
+#search-form .grid {
+  margin-bottom: 1rem;
+}
+
+#search-form button[type="submit"] {
+  width: auto;
+  margin-top: 0.5rem;
+}
+
+/* Results table */
+#results-table {
+  margin-top: 1rem;
+}
+
+#results-table tbody tr {
+  cursor: pointer;
+}
+
+#results-table tbody tr:hover {
+  background: var(--pico-secondary-hover-background);
+}
+
+/* Duration column color coding */
+.duration-fast {
+  color: var(--pico-ins-color);
+}
+
+.duration-medium {
+  color: var(--pico-mark-color);
+}
+
+.duration-slow {
+  color: var(--pico-del-color);
+}
+
+/* Loading indicator */
+.loading-indicator {
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Error message */
+.error-message {
+  background: var(--pico-del-color);
+  color: white;
+  padding: 1rem;
+  border-radius: var(--pico-border-radius);
+  margin-bottom: 1rem;
+}
+
+/* Pagination */
+#pagination {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* Results info */
+#results-info {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--pico-muted-color);
+}
+
+/* Modal content */
+#modal-content {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+#modal-content pre {
+  font-size: 0.8rem;
+  overflow-x: auto;
+}
+
+/* Status indicator */
+#status-indicator {
+  font-weight: 500;
+}
+
+.status-connected {
+  color: var(--pico-ins-color);
+}
+
+.status-error {
+  color: var(--pico-del-color);
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] #search-section {
+  background: var(--pico-card-background-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #search-form .grid {
+    grid-template-columns: 1fr;
+  }
+
+  #results-table {
+    font-size: 0.85rem;
+  }
+
+  #results-table th:nth-child(4),
+  #results-table td:nth-child(4),
+  #results-table th:nth-child(5),
+  #results-table td:nth-child(5) {
+    display: none;
+  }
+}
