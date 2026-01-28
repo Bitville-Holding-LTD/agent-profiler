@@ -1,0 +1,65 @@
+# Bitville PostgreSQL Monitoring Agent
+# systemd service unit file
+#
+# Installation:
+#   sudo cp postgres-agent.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable postgres-agent
+#   sudo systemctl start postgres-agent
+#
+# Target server: 5.9.121.222 (DB server)
+
+[Unit]
+Description=Bitville PostgreSQL Monitoring Agent
+Documentation=https://github.com/your-org/bitville-monitoring
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=bitville-agent
+Group=bitville-agent
+
+# Working directory and entry point
+WorkingDirectory=/opt/bitville-postgres-agent
+ExecStart=/usr/bin/python3 -m postgres_agent /etc/bitville/postgres-agent.ini
+
+# Environment configuration
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/bitville/postgres-agent.env
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# Security hardening (PG-07: never cause failures)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+# Allow write to buffer and log directories
+ReadWritePaths=/var/lib/bitville-postgres-agent
+ReadWritePaths=/var/log/bitville-postgres-agent
+
+# Allow read of PostgreSQL logs
+ReadOnlyPaths=/var/log/postgresql
+
+# Resource limits to prevent runaway
+MemoryLimit=256M
+MemoryHigh=200M
+TasksMax=10
+CPUQuota=25%
+
+# Logging to journal
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=postgres-agent
+
+# Graceful shutdown timeout
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
