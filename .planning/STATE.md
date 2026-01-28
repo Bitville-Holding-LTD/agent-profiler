@@ -37,8 +37,8 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Requirements coverage:**
 - Total v1 requirements: 48
-- Completed: 23 (Phase 1-2: PHP-01 to PHP-08, COMM-01 to COMM-03, DAEMON-01 to DAEMON-04, Phase 3: STOR-01, STOR-02, LIST-01 to LIST-05, Phase 4: GELF-01 to GELF-05)
-- Remaining: 25
+- Completed: 34 (Phase 1-2: PHP-01 to PHP-08, COMM-01 to COMM-03, DAEMON-01 to DAEMON-04, Phase 3: STOR-01, STOR-02, LIST-01 to LIST-05, Phase 4: GELF-01 to GELF-05, Phase 5: PG-01 to PG-07, PG-COMM-01 to PG-COMM-04)
+- Remaining: 14
 
 ## Current Phase
 

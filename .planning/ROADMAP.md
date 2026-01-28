@@ -179,10 +179,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 05-01-PLAN.md - Python project foundation with configuration and connection pool
-- [ ] 05-02-PLAN.md - Data collectors (pg_stat_activity, pg_stat_statements, locks, system metrics)
-- [ ] 05-03-PLAN.md - Log parser and transmission layer (circuit breaker, buffering)
-- [ ] 05-04-PLAN.md - Daemon integration and systemd service
+- [x] 05-01-PLAN.md - Python project foundation with configuration and connection pool
+- [x] 05-02-PLAN.md - Data collectors (pg_stat_activity, pg_stat_statements, locks, system metrics)
+- [x] 05-03-PLAN.md - Log parser and transmission layer (circuit breaker, buffering)
+- [x] 05-04-PLAN.md - Daemon integration and systemd service
 
 **Success Criteria:**
 1. Agent queries pg_stat_activity every minute for active queries and locks
@@ -300,4 +300,4 @@ Plans:
 
 ---
 
-*Last updated: 2026-01-28 after Phase 5 planning*
+*Last updated: 2026-01-28 after Phase 5 completion*
