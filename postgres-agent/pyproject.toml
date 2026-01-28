@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bitville-postgres-agent"
+version = "1.0.0"
+description = "PostgreSQL monitoring agent for Bitville APM system"
+requires-python = ">=3.11"
+dependencies = [
+    "psycopg[binary,pool]>=3.1.0",
+    "psutil>=7.0.0",
+    "persist-queue>=1.0.0",
+    "requests>=2.31.0",
+    "pybreaker>=1.0.0",
+    "structlog>=24.0.0",
+]
+
+[project.scripts]
+postgres-agent = "postgres_agent.main:main"
+
+[tool.setuptools]
+packages = ["postgres_agent"]
+package-dir = {"postgres_agent" = "src"}
