@@ -2,7 +2,7 @@
 
 **Project:** Bitville APM & Centralized Logging System
 **Current Milestone:** v1.0 - Initial Release
-**Status:** Phase 3 Complete - Phase 4 In Progress
+**Status:** Phase 4 Complete - Phase 5 In Progress
 
 ## Project Reference
 
@@ -10,7 +10,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Identify which PHP functions, SQL queries, or specific requests are causing random load spikes up to 200 load average
 
-**Current focus:** Phase 4 - Graylog Integration & Forwarding
+**Current focus:** Phase 5 - Postgres Agent Database Monitoring
 
 ## Phase Progress
 
@@ -20,20 +20,20 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ✓ Complete | 4/4 | 100% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
 | 3 - Central Listener Data Reception & Storage | ✓ Complete | 4/4 | 100% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb, d328387, 947b3d4, 9b77fec |
 | 4 - Graylog Integration & Forwarding | ✓ Complete | 3/3 | 100% | 41a6638, 51b99d6, 333e848, 1f069a7, ba41f49, 9541cef, 573031b |
-| 5 - Postgres Agent Database Monitoring | ○ Pending | 0/? | 0% | - |
+| 5 - Postgres Agent Database Monitoring | ◆ In Progress | 1/5 | 20% | b8b6e04, f7e5d44, d03a550 |
 | 6 - Query Interface & Visualization | ○ Pending | 0/? | 0% | - |
 | 7 - Configuration & Deployment | ○ Pending | 0/? | 0% | - |
 
 **Legend:** ○ Pending | ◆ In Progress | ✓ Complete
 
-**Overall Progress:** ████████████████████████████████████████████████████████████████████████████████████████████ 100% (17/17 plans)
+**Overall Progress:** ████████████████████████████████████████████████████████████████████████████████████████████░░░░ 94.7% (18/19 plans)
 
 ## Milestone Overview
 
 **Total phases:** 7
 **Completed:** 4
-**In progress:** 0
-**Remaining:** 3
+**In progress:** 1
+**Remaining:** 2
 
 **Requirements coverage:**
 - Total v1 requirements: 48
@@ -42,11 +42,14 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 ## Current Phase
 
-**Phase 4: Graylog Integration & Forwarding** ✓ COMPLETE
+**Phase 5: Postgres Agent Database Monitoring** ◆ IN PROGRESS
 
-**Goal:** Forward all profiling data to Graylog with resilient buffering and replay
+**Goal:** Monitor PostgreSQL database for slow queries, locks, and system metrics
 
-**Status:** Complete - All 3 plans delivered
+**Status:** In progress - Plan 05-02 complete (data collectors)
+
+**Progress:**
+- ✅ Plan 05-02: Data Collectors (pg_stat_activity with correlation ID extraction, pg_stat_statements with graceful degradation, lock detection, system metrics)
 
 **Progress:**
 - ✅ Plan 04-01: Database Foundation and GELF Client (forwarded_to_graylog tracking, gelf-pro TCP client, replay query functions)
@@ -59,6 +62,12 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 - ✅ GELF-03: Circuit breaker pattern (5 failures, 60s retry)
 - ✅ GELF-04: SQLite buffering and FIFO replay
 - ✅ GELF-05: Project identifier in GELF messages
+
+**Phase 4 (COMPLETE):** Graylog Integration & Forwarding
+- ✅ All 3 plans complete:
+  - Plan 04-01: Database Foundation and GELF Client (forwarded_to_graylog tracking, gelf-pro TCP client, replay query functions)
+  - Plan 04-02: Circuit Breaker and Forwarder (opossum circuit breaker, state persistence, GELF message building)
+  - Plan 04-03: Replay Integration and Handler Wiring (FIFO replay, fire-and-forget forwarding, server initialization)
 
 **Phase 3 (COMPLETE):** Central Listener Data Reception & Storage
 - ✅ All 4 plans complete:
@@ -79,20 +88,21 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 - ✅ All 11 requirements delivered (PHP-01 to PHP-08, COMM-01 to COMM-03)
 - ✅ All 6 plans complete
 
-**Next step:** Begin Phase 5 (Postgres Agent Database Monitoring)
+**Next step:** Continue Phase 5 (Plan 05-03: Transmission and Buffering)
 
 ## Active Work
 
-**Phase 4 COMPLETE** - All Graylog integration plans delivered.
+**Phase 5 Plan 05-02 COMPLETE** - Data collectors implemented (pg_activity, pg_statements, locks, system metrics).
 
-**Next:** Phase 5 - Postgres Agent Database Monitoring
+**Next:** Plan 05-03 - Transmission and Buffering
 
 ## Blockers/Concerns
 
-None - Phase 4 complete. Ready to begin Phase 5 (Postgres Agent).
+None - Phase 5 Plan 02 complete. Data collectors ready for transmission layer (Plan 05-03).
 
 ## Recent Activity
 
+- 2026-01-28: Completed plan 05-02 - Data Collectors (3 tasks, 2min 20sec)
 - 2026-01-27: **🎉 PHASE 4 COMPLETE** - Graylog Integration & Forwarding (3/3 plans, 5 requirements)
 - 2026-01-27: Completed plan 04-03 - Replay Integration and Handler Wiring (3 tasks, ~4min)
 - 2026-01-27: Completed plan 04-02 - Circuit Breaker and Forwarder (2 tasks, 2min 57sec)
@@ -123,6 +133,11 @@ None - Phase 4 complete. Ready to begin Phase 5 (Postgres Agent).
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Query truncation at 1000 chars (pg_stat_statements) and 500 chars (locks) | Prevents payload bloat in transmission to central listener | 05-02 | 2026-01-28 |
+| Correlation ID extraction via regex bitville-([a-f0-9-]{36}) | PHP agent sets application_name to bitville-{uuid} format for request linking | 05-02 | 2026-01-28 |
+| Graceful degradation for pg_stat_statements | Check extension availability once, cache result, return empty list if unavailable | 05-02 | 2026-01-28 |
+| PostgreSQL wiki lock monitoring query | Use official community query for blocking query detection | 05-02 | 2026-01-28 |
+| Timestamp and IP serialization to strings | Convert Python datetime and psycopg IP objects to JSON-compatible strings | 05-02 | 2026-01-28 |
 | Batch size 100 with 100ms delay for replay | Prevents overwhelming Graylog during replay while still processing quickly | 04-03 | 2026-01-27 |
 | Circuit breaker checks in outer and inner replay loops | Enables clean interruption at batch boundaries or mid-batch | 04-03 | 2026-01-27 |
 | Fire-and-forget pattern with .catch() for forwarding | Ensures forwarding errors are logged but never block ingestion responses | 04-03 | 2026-01-27 |
@@ -208,4 +223,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-27T21:31:39Z - Completed Phase 4: Graylog Integration & Forwarding (3/3 plans, 5 requirements)
+Last activity: 2026-01-28T09:38:52Z - Completed Plan 05-02: Data Collectors (pg_stat_activity, pg_stat_statements, locks, system metrics)
