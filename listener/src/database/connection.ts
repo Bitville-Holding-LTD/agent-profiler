@@ -1,5 +1,6 @@
 import { Database } from "bun:sqlite";
 import { readFileSync } from "node:fs";
+import { runMigrations } from "./migrations.ts";
 
 // Singleton database instance
 let db: Database | null = null;
@@ -62,6 +63,10 @@ export function initDatabase(): Database {
     `);
     console.log("[Database] Migration complete: forwarded_to_graylog column added");
   }
+
+  // Run migrations (virtual columns for URL filtering, etc.)
+  console.log("[Database] Running migrations...");
+  runMigrations(db);
 
   return db;
 }
