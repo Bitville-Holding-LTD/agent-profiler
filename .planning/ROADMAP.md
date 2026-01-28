@@ -219,6 +219,15 @@ Plans:
 
 **Requirements:** QUERY-01, QUERY-02, QUERY-03, QUERY-04, QUERY-05, QUERY-06
 
+**Plans:** 5 plans
+
+Plans:
+- [ ] 06-01-PLAN.md - API foundation with search endpoint and virtual columns
+- [ ] 06-02-PLAN.md - Web UI foundation with HTML dashboard and Pico CSS
+- [ ] 06-03-PLAN.md - Stats API and correlation endpoint
+- [ ] 06-04-PLAN.md - Timeline visualization and detail view
+- [ ] 06-05-PLAN.md - Statistics view with Chart.js
+
 **Success Criteria:**
 1. Basic web UI displays logs directly on listener server
 2. Search/filter API supports queries by project, URL, duration, timestamp
@@ -300,4 +309,4 @@ Plans:
 
 ---
 
-*Last updated: 2026-01-28 after Phase 5 completion*
+*Last updated: 2026-01-28 after Phase 6 planning*
