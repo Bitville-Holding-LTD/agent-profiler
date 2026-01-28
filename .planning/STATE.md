@@ -2,7 +2,7 @@
 
 **Project:** Bitville APM & Centralized Logging System
 **Current Milestone:** v1.0 - Initial Release
-**Status:** Phase 4 Complete - Phase 5 In Progress
+**Status:** Phase 5 Complete
 
 ## Project Reference
 
@@ -10,7 +10,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Identify which PHP functions, SQL queries, or specific requests are causing random load spikes up to 200 load average
 
-**Current focus:** Phase 5 - Postgres Agent Database Monitoring
+**Current focus:** Phase 6 - Query Interface & Visualization
 
 ## Phase Progress
 
@@ -20,19 +20,19 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ✓ Complete | 4/4 | 100% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
 | 3 - Central Listener Data Reception & Storage | ✓ Complete | 4/4 | 100% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb, d328387, 947b3d4, 9b77fec |
 | 4 - Graylog Integration & Forwarding | ✓ Complete | 3/3 | 100% | 41a6638, 51b99d6, 333e848, 1f069a7, ba41f49, 9541cef, 573031b |
-| 5 - Postgres Agent Database Monitoring | ◆ In Progress | 3/5 | 60% | 31bdde3, 1f7fe49, 660f5e2, b8b6e04, f7e5d44, d03a550, af8a392, 644c6cd, 2d1d183, 218b56e, 827aef9 |
+| 5 - Postgres Agent Database Monitoring | ✓ Complete | 4/4 | 100% | 31bdde3, 1f7fe49, 660f5e2, b8b6e04, f7e5d44, d03a550, 644c6cd, 2d1d183, 218b56e, 827aef9, 41b2979, 941b54c, 2b934a5 |
 | 6 - Query Interface & Visualization | ○ Pending | 0/? | 0% | - |
 | 7 - Configuration & Deployment | ○ Pending | 0/? | 0% | - |
 
 **Legend:** ○ Pending | ◆ In Progress | ✓ Complete
 
-**Overall Progress:** ████████████████████████████████████████████████████████████████████████████████████████████████░ 95% (19/20 plans)
+**Overall Progress:** ████████████████████████████████████████████████████████████████████████████████████████████████████ 100% (20/20 plans)
 
 ## Milestone Overview
 
 **Total phases:** 7
-**Completed:** 4
-**In progress:** 1
+**Completed:** 5
+**In progress:** 0
 **Remaining:** 2
 
 **Requirements coverage:**
@@ -42,68 +42,47 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 ## Current Phase
 
-**Phase 5: Postgres Agent Database Monitoring** ◆ IN PROGRESS
+**Phase 5: Postgres Agent Database Monitoring** ✓ COMPLETE
 
 **Goal:** Monitor PostgreSQL database for slow queries, locks, and system metrics
 
-**Status:** In progress - Plans 05-01, 05-02, and 05-03 complete
+**Status:** Complete - All 4 plans delivered
 
 **Progress:**
 - ✅ Plan 05-01: Postgres Agent Foundation (Python project structure, INI/env configuration, connection pool with safety limits)
 - ✅ Plan 05-02: Data Collectors (pg_stat_activity with correlation ID extraction, pg_stat_statements with graceful degradation, lock detection, system metrics)
 - ✅ Plan 05-03: Log Parser and Transmission Layer (log rotation handling, HTTP client with circuit breaker, persistent buffer with eviction)
-
-**Progress:**
-- ✅ Plan 04-01: Database Foundation and GELF Client (forwarded_to_graylog tracking, gelf-pro TCP client, replay query functions)
-- ✅ Plan 04-02: Circuit Breaker and Forwarder (opossum circuit breaker, state persistence, GELF message building)
-- ✅ Plan 04-03: Replay Integration and Handler Wiring (FIFO replay, fire-and-forget forwarding, server initialization)
+- ✅ Plan 05-04: Daemon and Systemd Service (main collection loop, signal handlers, background log parsing, systemd unit with security hardening)
 
 **Requirements Delivered:**
-- ✅ GELF-01: All profiling data forwarded to Graylog
-- ✅ GELF-02: GELF TCP transport (gelf-pro library)
-- ✅ GELF-03: Circuit breaker pattern (5 failures, 60s retry)
-- ✅ GELF-04: SQLite buffering and FIFO replay
-- ✅ GELF-05: Project identifier in GELF messages
+- ✅ PG-01: Collect pg_stat_activity every 60 seconds
+- ✅ PG-02: Collect pg_stat_statements with graceful degradation
+- ✅ PG-03: Parse PostgreSQL log files continuously
+- ✅ PG-04: Collect system metrics (CPU, memory, disk I/O)
+- ✅ PG-05: Extract correlation ID from application_name
+- ✅ PG-06: Detect blocking queries and locks
+- ✅ PG-07: Never cause database failures or performance degradation
+- ✅ PG-COMM-01: Send data to listener via HTTP POST
+- ✅ PG-COMM-02: Local buffering for listener unavailability
+- ✅ PG-COMM-03: Include project identifier with all sent data
+- ✅ PG-COMM-04: Run as daemon service on DB server
 
-**Phase 4 (COMPLETE):** Graylog Integration & Forwarding
-- ✅ All 3 plans complete:
-  - Plan 04-01: Database Foundation and GELF Client (forwarded_to_graylog tracking, gelf-pro TCP client, replay query functions)
-  - Plan 04-02: Circuit Breaker and Forwarder (opossum circuit breaker, state persistence, GELF message building)
-  - Plan 04-03: Replay Integration and Handler Wiring (FIFO replay, fire-and-forget forwarding, server initialization)
-
-**Phase 3 (COMPLETE):** Central Listener Data Reception & Storage
-- ✅ All 4 plans complete:
-  - Plan 03-01: Database Foundation (SQLite with WAL mode, unified profiling_data table, prepared statements)
-  - Plan 03-02: HTTP Server with Authentication (Bun server, Bearer token auth, Zod validation, dual ingestion endpoints)
-  - Plan 03-03: Retention Policy and Systemd Service (7-day cleanup cron, incremental vacuum, systemd with security hardening)
-  - Plan 03-04: UDP Receiver and Rate Limiting (UDP fire-and-forget ingestion, sliding window rate limiting, dual-protocol server)
-
-**Phase 2 (COMPLETE):** PHP Agent Daemon Architecture & Lifecycle
-- ✅ All 4 requirements delivered (DAEMON-01 to DAEMON-04)
-- ✅ All 4 plans complete:
-  - Plan 02-01: Daemon Foundation (ReactPHP event loop, socket server, worker lifecycle)
-  - Plan 02-02: Buffer Management (memory buffer, disk overflow, FIFO replay)
-  - Plan 02-03: Circuit Breaker & Transmitter (failure tracking, HTTP forwarding)
-  - Plan 02-04: Daemon Integration & Process Management (health check, periodic transmission, supervisord/systemd)
-
-**Phase 1 (COMPLETE):** PHP Agent Core Instrumentation & Safety
-- ✅ All 11 requirements delivered (PHP-01 to PHP-08, COMM-01 to COMM-03)
-- ✅ All 6 plans complete
-
-**Next step:** Continue Phase 5 (Plan 05-04: Main Daemon and Integration)
+**Next phase:** Phase 6 - Query Interface & Visualization
 
 ## Active Work
 
-**Phase 5 Plan 05-03 COMPLETE** - Log parser and transmission layer with circuit breaker and persistent buffer.
+**Phase 5 COMPLETE** - All 4 plans delivered. Postgres agent is production-ready.
 
-**Next:** Plan 05-04 - Main Daemon and Integration
+**Next:** Phase 6 - Query Interface & Visualization
 
 ## Blockers/Concerns
 
-None - Phase 5 Plan 03 complete. Ready for main daemon integration (Plan 05-04).
+None - Phase 5 complete. Ready to begin Phase 6 (Query Interface & Visualization) or Phase 7 (Configuration & Deployment).
 
 ## Recent Activity
 
+- 2026-01-28: **🎉 PHASE 5 COMPLETE** - Postgres Agent Database Monitoring (4/4 plans, 11 requirements)
+- 2026-01-28: Completed plan 05-04 - Daemon and Systemd Service (3 tasks, 2min 13sec)
 - 2026-01-28: Completed plan 05-03 - Log Parser and Transmission Layer (4 tasks, 2min 9sec)
 - 2026-01-28: Completed plan 05-02 - Data Collectors (3 tasks, 2min 20sec)
 - 2026-01-28: Completed plan 05-01 - Postgres Agent Foundation (3 tasks, 1min 56sec)
@@ -137,6 +116,14 @@ None - Phase 5 Plan 03 complete. Ready for main daemon integration (Plan 05-04).
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Structured JSON logging via structlog | JSON format enables log parsing in Graylog/ELK, ISO timestamps for correlation, structured fields queryable | 05-04 | 2026-01-28 |
+| Flush remaining logs on shutdown | Prevents losing log entries during graceful shutdown, 30s timeout allows completion | 05-04 | 2026-01-28 |
+| Config path from argv or environment | Command-line for local testing, env var for systemd, explicit argv takes precedence | 05-04 | 2026-01-28 |
+| Security hardening with minimal filesystem access | NoNewPrivileges, ProtectSystem=strict, ReadOnlyPaths for logs, limited ReadWritePaths reduces blast radius | 05-04 | 2026-01-28 |
+| systemd resource limits (256MB memory, 25% CPU, 10 tasks) | Defense in depth with config limits, systemd enforcement works even if Python code has bugs | 05-04 | 2026-01-28 |
+| Separate sends for each data type | Circuit breaker state can change mid-cycle, per-source-type failure tracking, listener handles partial data | 05-04 | 2026-01-28 |
+| Background daemon thread for log parsing | Daemon thread exits automatically, dedicated 0.1s poll without blocking 60s collection cycle | 05-04 | 2026-01-28 |
+| Collection loop with interruptible sleep | shutdown_event.wait() returns immediately on signal, enables fast shutdown, maintains accurate timing | 05-04 | 2026-01-28 |
 | Buffer eviction targets 80% of max size | Provides headroom for new data without immediate re-eviction, FIFO prioritizes recent data | 05-03 | 2026-01-28 |
 | flush_buffer checks circuit before and during processing | Stops flushing if circuit opens, avoids wasting resources on failing requests | 05-03 | 2026-01-28 |
 | Circuit breaker 5 failures, 60s reset (Postgres agent) | Matches PHP daemon circuit breaker for consistency across agents | 05-03 | 2026-01-28 |
@@ -236,4 +223,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-28T09:43:12Z - Completed Plan 05-03: Log Parser and Transmission Layer (log rotation, circuit breaker, persistent buffer)
+Last activity: 2026-01-28T09:58:52Z - Completed Phase 5: Postgres Agent Database Monitoring (4/4 plans, 11 requirements)
