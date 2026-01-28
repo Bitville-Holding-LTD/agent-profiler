@@ -20,13 +20,13 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ✓ Complete | 4/4 | 100% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
 | 3 - Central Listener Data Reception & Storage | ✓ Complete | 4/4 | 100% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb, d328387, 947b3d4, 9b77fec |
 | 4 - Graylog Integration & Forwarding | ✓ Complete | 3/3 | 100% | 41a6638, 51b99d6, 333e848, 1f069a7, ba41f49, 9541cef, 573031b |
-| 5 - Postgres Agent Database Monitoring | ◆ In Progress | 2/5 | 40% | 31bdde3, 1f7fe49, 660f5e2, b8b6e04, f7e5d44, d03a550, af8a392 |
+| 5 - Postgres Agent Database Monitoring | ◆ In Progress | 3/5 | 60% | 31bdde3, 1f7fe49, 660f5e2, b8b6e04, f7e5d44, d03a550, af8a392, 644c6cd, 2d1d183, 218b56e, 827aef9 |
 | 6 - Query Interface & Visualization | ○ Pending | 0/? | 0% | - |
 | 7 - Configuration & Deployment | ○ Pending | 0/? | 0% | - |
 
 **Legend:** ○ Pending | ◆ In Progress | ✓ Complete
 
-**Overall Progress:** ████████████████████████████████████████████████████████████████████████████████████████████░░░░ 94.7% (18/19 plans)
+**Overall Progress:** ████████████████████████████████████████████████████████████████████████████████████████████████░ 95% (19/20 plans)
 
 ## Milestone Overview
 
@@ -46,11 +46,12 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Goal:** Monitor PostgreSQL database for slow queries, locks, and system metrics
 
-**Status:** In progress - Plans 05-01 and 05-02 complete
+**Status:** In progress - Plans 05-01, 05-02, and 05-03 complete
 
 **Progress:**
 - ✅ Plan 05-01: Postgres Agent Foundation (Python project structure, INI/env configuration, connection pool with safety limits)
 - ✅ Plan 05-02: Data Collectors (pg_stat_activity with correlation ID extraction, pg_stat_statements with graceful degradation, lock detection, system metrics)
+- ✅ Plan 05-03: Log Parser and Transmission Layer (log rotation handling, HTTP client with circuit breaker, persistent buffer with eviction)
 
 **Progress:**
 - ✅ Plan 04-01: Database Foundation and GELF Client (forwarded_to_graylog tracking, gelf-pro TCP client, replay query functions)
@@ -89,20 +90,21 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 - ✅ All 11 requirements delivered (PHP-01 to PHP-08, COMM-01 to COMM-03)
 - ✅ All 6 plans complete
 
-**Next step:** Continue Phase 5 (Plan 05-03: Transmission and Buffering)
+**Next step:** Continue Phase 5 (Plan 05-04: Main Daemon and Integration)
 
 ## Active Work
 
-**Phase 5 Plan 05-02 COMPLETE** - Data collectors implemented (pg_activity, pg_statements, locks, system metrics).
+**Phase 5 Plan 05-03 COMPLETE** - Log parser and transmission layer with circuit breaker and persistent buffer.
 
-**Next:** Plan 05-03 - Transmission and Buffering
+**Next:** Plan 05-04 - Main Daemon and Integration
 
 ## Blockers/Concerns
 
-None - Phase 5 Plan 02 complete. Data collectors ready for transmission layer (Plan 05-03).
+None - Phase 5 Plan 03 complete. Ready for main daemon integration (Plan 05-04).
 
 ## Recent Activity
 
+- 2026-01-28: Completed plan 05-03 - Log Parser and Transmission Layer (4 tasks, 2min 9sec)
 - 2026-01-28: Completed plan 05-02 - Data Collectors (3 tasks, 2min 20sec)
 - 2026-01-28: Completed plan 05-01 - Postgres Agent Foundation (3 tasks, 1min 56sec)
 - 2026-01-27: **🎉 PHASE 4 COMPLETE** - Graylog Integration & Forwarding (3/3 plans, 5 requirements)
@@ -135,6 +137,11 @@ None - Phase 5 Plan 02 complete. Data collectors ready for transmission layer (P
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Buffer eviction targets 80% of max size | Provides headroom for new data without immediate re-eviction, FIFO prioritizes recent data | 05-03 | 2026-01-28 |
+| flush_buffer checks circuit before and during processing | Stops flushing if circuit opens, avoids wasting resources on failing requests | 05-03 | 2026-01-28 |
+| Circuit breaker 5 failures, 60s reset (Postgres agent) | Matches PHP daemon circuit breaker for consistency across agents | 05-03 | 2026-01-28 |
+| Multi-line log entry buffering until next timestamp | PostgreSQL stack traces and long queries span multiple lines, timestamp marks entry boundary | 05-03 | 2026-01-28 |
+| Log rotation detection via inode tracking | Robust across logrotate, copytruncate, rename patterns without false positives | 05-03 | 2026-01-28 |
 | Query truncation at 1000 chars (pg_stat_statements) and 500 chars (locks) | Prevents payload bloat in transmission to central listener | 05-02 | 2026-01-28 |
 | Connection pool cap at 5 connections | Monitoring must not overwhelm database (PG-07), enforced in config loader | 05-01 | 2026-01-28 |
 | Statement timeout 5 seconds at connection level | Prevents hung queries from exhausting pool, set via connection options | 05-01 | 2026-01-28 |
@@ -229,4 +236,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-28T09:38:52Z - Completed Plan 05-02: Data Collectors (pg_stat_activity, pg_stat_statements, locks, system metrics)
+Last activity: 2026-01-28T09:43:12Z - Completed Plan 05-03: Log Parser and Transmission Layer (log rotation, circuit breaker, persistent buffer)
