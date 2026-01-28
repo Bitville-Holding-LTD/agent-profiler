@@ -88,6 +88,26 @@ const server = Bun.serve({
   async fetch(req: Request, server: any): Promise<Response> {
     const url = new URL(req.url);
 
+    // Dashboard UI (Phase 6) - serve at root
+    if (req.method === "GET" && url.pathname === "/") {
+      const html = Bun.file(import.meta.dir + "/../public/index.html");
+      return new Response(html, {
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    }
+
+    // Serve static assets (JS, CSS)
+    if (req.method === "GET" && (url.pathname.endsWith(".js") || url.pathname.endsWith(".css"))) {
+      const filePath = import.meta.dir + "/../public" + url.pathname;
+      const file = Bun.file(filePath);
+      if (await file.exists()) {
+        const contentType = url.pathname.endsWith(".js") ? "application/javascript" : "text/css";
+        return new Response(file, {
+          headers: { "content-type": contentType },
+        });
+      }
+    }
+
     // Health check endpoint (static, fast)
     if (req.method === "GET" && url.pathname === "/health") {
       return new Response("OK", {
@@ -227,6 +247,7 @@ const server = Bun.serve({
 
 // Log startup message
 console.log(`[Listener] ${protocol} server listening on port ${PORT}`);
+console.log(`[Listener] Dashboard: ${protocol.toLowerCase()}://localhost:${PORT}/`);
 console.log(`[Listener] Health check: ${protocol.toLowerCase()}://localhost:${PORT}/health`);
 console.log(`[Listener] Readiness check: ${protocol.toLowerCase()}://localhost:${PORT}/ready`);
 console.log(`[Listener] PHP agent endpoint: ${protocol.toLowerCase()}://localhost:${PORT}/ingest/php`);
