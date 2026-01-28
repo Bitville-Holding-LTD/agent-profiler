@@ -29,6 +29,7 @@ import { startUdpServer, stopUdpServer, getUdpStats } from "./handlers/udp-recei
 import { initGelfClient, getGraylogStatus } from "./graylog/client.ts";
 import { createCircuitBreaker, getCircuitBreakerStatus } from "./graylog/circuit-breaker.ts";
 import { replayUnforwardedRecords, getReplayStatus } from "./graylog/replay.ts";
+import { handleSearch, handleGetProjects, handleGetStatistics } from "./api/search.ts";
 
 // Initialize database on startup
 console.log("[Listener] Initializing database...");
@@ -106,6 +107,18 @@ const server = Bun.serve({
           headers: { "content-type": contentType },
         });
       }
+    }
+
+    // CORS preflight handler
+    if (req.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      });
     }
 
     // Health check endpoint (static, fast)
@@ -189,6 +202,19 @@ const server = Bun.serve({
       }
     }
 
+    // Query API endpoints (Phase 6)
+    if (req.method === "GET" && url.pathname === "/api/search") {
+      return handleSearch(req);
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/projects") {
+      return handleGetProjects(req);
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/statistics") {
+      return handleGetStatistics(req);
+    }
+
     // Apply rate limiting for ingest endpoints
     if (url.pathname.startsWith("/ingest")) {
       const clientIp = getClientIp(req, server);
@@ -250,6 +276,7 @@ console.log(`[Listener] ${protocol} server listening on port ${PORT}`);
 console.log(`[Listener] Dashboard: ${protocol.toLowerCase()}://localhost:${PORT}/`);
 console.log(`[Listener] Health check: ${protocol.toLowerCase()}://localhost:${PORT}/health`);
 console.log(`[Listener] Readiness check: ${protocol.toLowerCase()}://localhost:${PORT}/ready`);
+console.log(`[Listener] Query API: ${protocol.toLowerCase()}://localhost:${PORT}/api/search`);
 console.log(`[Listener] PHP agent endpoint: ${protocol.toLowerCase()}://localhost:${PORT}/ingest/php`);
 console.log(`[Listener] Postgres agent endpoint: ${protocol.toLowerCase()}://localhost:${PORT}/ingest/postgres`);
 console.log(`[Listener] Loaded ${getApiKeyCount()} API key(s)`);
