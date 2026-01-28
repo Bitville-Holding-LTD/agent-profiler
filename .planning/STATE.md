@@ -2,7 +2,7 @@
 
 **Project:** Bitville APM & Centralized Logging System
 **Current Milestone:** v1.0 - Initial Release
-**Status:** Phase 5 Complete
+**Status:** Phase 6 In Progress
 
 ## Project Reference
 
@@ -21,7 +21,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | 3 - Central Listener Data Reception & Storage | ✓ Complete | 4/4 | 100% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb, d328387, 947b3d4, 9b77fec |
 | 4 - Graylog Integration & Forwarding | ✓ Complete | 3/3 | 100% | 41a6638, 51b99d6, 333e848, 1f069a7, ba41f49, 9541cef, 573031b |
 | 5 - Postgres Agent Database Monitoring | ✓ Complete | 4/4 | 100% | 31bdde3, 1f7fe49, 660f5e2, b8b6e04, f7e5d44, d03a550, 644c6cd, 2d1d183, 218b56e, 827aef9, 41b2979, 941b54c, 2b934a5 |
-| 6 - Query Interface & Visualization | ◆ In Progress | 2/4 | 50% | 0539068, 31a4e98, 8da2be2, f26449f |
+| 6 - Query Interface & Visualization | ◆ In Progress | 2/4 | 50% | 0516a5f, 0539068, 70c796b, 31a4e98, 8da2be2, f26449f |
 | 7 - Configuration & Deployment | ○ Pending | 0/? | 0% | - |
 
 **Legend:** ○ Pending | ◆ In Progress | ✓ Complete
@@ -77,8 +77,8 @@ None - Phase 5 complete. Ready to begin Phase 6 (Query Interface & Visualization
 
 ## Recent Activity
 
+- 2026-01-28: Completed plan 06-01 - Query Interface & Search API (3 tasks, 5min 12sec)
 - 2026-01-28: Completed plan 06-02 - Web Dashboard HTML Foundation (3 tasks, 2min 40sec)
-- 2026-01-28: Completed plan 06-01 - Search API with Cursor Pagination (3 tasks, 2min 24sec)
 - 2026-01-28: **🎉 PHASE 5 COMPLETE** - Postgres Agent Database Monitoring (4/4 plans, 11 requirements)
 - 2026-01-28: Completed plan 05-04 - Daemon and Systemd Service (3 tasks, 2min 13sec)
 - 2026-01-28: Completed plan 05-03 - Log Parser and Transmission Layer (4 tasks, 2min 9sec)
@@ -114,6 +114,11 @@ None - Phase 5 complete. Ready to begin Phase 6 (Query Interface & Visualization
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Virtual columns for JSON extraction | SQLite virtual columns enable indexing on JSON fields without storage overhead, computed on read | 06-01 | 2026-01-28 |
+| Cursor-based pagination using timestamp | Timestamp-based cursor (WHERE timestamp < ?) provides constant-time queries at any offset, unlike OFFSET | 06-01 | 2026-01-28 |
+| Migration registry pattern | Tracking applied migrations in _migrations table ensures idempotent execution, handles duplicate column errors gracefully | 06-01 | 2026-01-28 |
+| Zod for query parameter validation | Type-safe schema validation with automatic coercion and detailed error messages, consistent with project patterns | 06-01 | 2026-01-28 |
+| CORS headers (Access-Control-Allow-Origin: *) | Enable browser-based dashboard access, listener on internal network not exposed to public | 06-01 | 2026-01-28 |
 | Pico CSS over Tailwind or custom CSS | Semantic HTML styling (11KB), no build step, accessible by default, faster development | 06-02 | 2026-01-28 |
 | Vanilla JavaScript over React/Vue | No build tooling, faster load time, sufficient for CRUD interface, easier debugging | 06-02 | 2026-01-28 |
 | State management with module-scoped object | Simple pattern for single-page app, no external library needed, easy to debug | 06-02 | 2026-01-28 |
