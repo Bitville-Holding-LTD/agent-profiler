@@ -21,12 +21,12 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | 3 - Central Listener Data Reception & Storage | ✓ Complete | 4/4 | 100% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb, d328387, 947b3d4, 9b77fec |
 | 4 - Graylog Integration & Forwarding | ✓ Complete | 3/3 | 100% | 41a6638, 51b99d6, 333e848, 1f069a7, ba41f49, 9541cef, 573031b |
 | 5 - Postgres Agent Database Monitoring | ✓ Complete | 4/4 | 100% | 31bdde3, 1f7fe49, 660f5e2, b8b6e04, f7e5d44, d03a550, 644c6cd, 2d1d183, 218b56e, 827aef9, 41b2979, 941b54c, 2b934a5 |
-| 6 - Query Interface & Visualization | ◆ In Progress | 2/4 | 50% | 0516a5f, 0539068, 70c796b, 31a4e98, 8da2be2, f26449f |
+| 6 - Query Interface & Visualization | ◆ In Progress | 3/4 | 75% | 0516a5f, 0539068, 70c796b, 31a4e98, 8da2be2, f26449f, be76e56, fea845e, 6e762cc |
 | 7 - Configuration & Deployment | ○ Pending | 0/? | 0% | - |
 
 **Legend:** ○ Pending | ◆ In Progress | ✓ Complete
 
-**Overall Progress:** █████████████████████████████████████████████████████████████████████████████████████████████████████████░░░░░░░░ 91% (22/24 plans)
+**Overall Progress:** ████████████████████████████████████████████████████████████████████████████████████████████████████████████████░░░░ 95% (23/24 plans)
 
 ## Milestone Overview
 
@@ -46,30 +46,33 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Goal:** Users can search, filter, and visualize collected profiling data
 
-**Status:** In Progress - 2 of 4 plans complete (Wave 1)
+**Status:** In Progress - 3 of 4 plans complete (Wave 1 + Wave 2)
 
 **Progress:**
 - ✅ Plan 06-01: Search API with cursor pagination (filter by project, URL, duration, timestamps, source)
 - ✅ Plan 06-02: Web Dashboard HTML Foundation (Pico CSS, vanilla JavaScript, static serving)
-- ⬜ Plan 06-03: TBD
+- ✅ Plan 06-03: Statistics and Correlation APIs (percentiles, comparison, request tracing)
 - ⬜ Plan 06-04: TBD
 
 **Requirements Delivered So Far:**
 - ✅ QUERY-01: Web UI for searching/viewing profiling data
 - ✅ Cursor-based pagination for efficient large result sets
 - ✅ Filter by project, URL pattern, duration, timestamps, source
+- ✅ QUERY-04: Correlation lookup linking PHP requests to SQL queries
+- ✅ QUERY-05: Comparative analysis with percentile ranks
 
-**Next plan:** 06-03 (Wave 1 continuation)
+**Next plan:** 06-04 (Wave 3 - Dashboard integration)
 
 ## Active Work
 
-**Phase 6 Wave 1 IN PROGRESS** - Building query interface and web dashboard
+**Phase 6 Wave 2 COMPLETE** - Statistics and correlation APIs delivered
 
 **Completed:**
 - Plan 06-01: Search API with cursor pagination
 - Plan 06-02: Web Dashboard HTML Foundation
+- Plan 06-03: Statistics and Correlation APIs
 
-**Next:** Continue Phase 6 Wave 1 execution
+**Next:** Plan 06-04 (Dashboard integration with analytics features)
 
 ## Blockers/Concerns
 
@@ -77,8 +80,9 @@ None - Phase 5 complete. Ready to begin Phase 6 (Query Interface & Visualization
 
 ## Recent Activity
 
-- 2026-01-28: Completed plan 06-01 - Query Interface & Search API (3 tasks, 5min 12sec)
+- 2026-01-28: Completed plan 06-03 - Statistics and Correlation APIs (3 tasks, 3min 14sec)
 - 2026-01-28: Completed plan 06-02 - Web Dashboard HTML Foundation (3 tasks, 2min 40sec)
+- 2026-01-28: Completed plan 06-01 - Query Interface & Search API (3 tasks, 5min 12sec)
 - 2026-01-28: **🎉 PHASE 5 COMPLETE** - Postgres Agent Database Monitoring (4/4 plans, 11 requirements)
 - 2026-01-28: Completed plan 05-04 - Daemon and Systemd Service (3 tasks, 2min 13sec)
 - 2026-01-28: Completed plan 05-03 - Log Parser and Transmission Layer (4 tasks, 2min 9sec)
@@ -114,6 +118,9 @@ None - Phase 5 complete. Ready to begin Phase 6 (Query Interface & Visualization
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Manual percentile calculation using ORDER BY + LIMIT/OFFSET | SQLite percentile() requires compile-time flag, manual approach works on all SQLite versions | 06-03 | 2026-01-28 |
+| Percentile rank for comparative analysis | Shows what percent of requests were slower (85th percentile = faster than 15% of requests) | 06-03 | 2026-01-28 |
+| Path parameter for correlation API (/api/correlation/:id) | RESTful pattern for resource identifiers, cleaner URLs than query parameters | 06-03 | 2026-01-28 |
 | Virtual columns for JSON extraction | SQLite virtual columns enable indexing on JSON fields without storage overhead, computed on read | 06-01 | 2026-01-28 |
 | Cursor-based pagination using timestamp | Timestamp-based cursor (WHERE timestamp < ?) provides constant-time queries at any offset, unlike OFFSET | 06-01 | 2026-01-28 |
 | Migration registry pattern | Tracking applied migrations in _migrations table ensures idempotent execution, handles duplicate column errors gracefully | 06-01 | 2026-01-28 |
@@ -231,4 +238,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-28T10:46:57Z - Completed 06-02-PLAN.md (Web Dashboard HTML Foundation)
+Last activity: 2026-01-28T10:54:17Z - Completed 06-03-PLAN.md (Statistics and Correlation APIs)
