@@ -21,19 +21,19 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | 3 - Central Listener Data Reception & Storage | ✓ Complete | 4/4 | 100% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb, d328387, 947b3d4, 9b77fec |
 | 4 - Graylog Integration & Forwarding | ✓ Complete | 3/3 | 100% | 41a6638, 51b99d6, 333e848, 1f069a7, ba41f49, 9541cef, 573031b |
 | 5 - Postgres Agent Database Monitoring | ✓ Complete | 4/4 | 100% | 31bdde3, 1f7fe49, 660f5e2, b8b6e04, f7e5d44, d03a550, 644c6cd, 2d1d183, 218b56e, 827aef9, 41b2979, 941b54c, 2b934a5 |
-| 6 - Query Interface & Visualization | ○ Pending | 0/? | 0% | - |
+| 6 - Query Interface & Visualization | ◆ In Progress | 2/4 | 50% | 0539068, 31a4e98, 8da2be2, f26449f |
 | 7 - Configuration & Deployment | ○ Pending | 0/? | 0% | - |
 
 **Legend:** ○ Pending | ◆ In Progress | ✓ Complete
 
-**Overall Progress:** ████████████████████████████████████████████████████████████████████████████████████████████████████ 100% (20/20 plans)
+**Overall Progress:** █████████████████████████████████████████████████████████████████████████████████████████████████████████░░░░░░░░ 91% (22/24 plans)
 
 ## Milestone Overview
 
 **Total phases:** 7
 **Completed:** 5
-**In progress:** 0
-**Remaining:** 2
+**In progress:** 1
+**Remaining:** 1
 
 **Requirements coverage:**
 - Total v1 requirements: 48
@@ -42,38 +42,34 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 ## Current Phase
 
-**Phase 5: Postgres Agent Database Monitoring** ✓ COMPLETE
+**Phase 6: Query Interface & Visualization** ◆ IN PROGRESS
 
-**Goal:** Monitor PostgreSQL database for slow queries, locks, and system metrics
+**Goal:** Users can search, filter, and visualize collected profiling data
 
-**Status:** Complete - All 4 plans delivered
+**Status:** In Progress - 2 of 4 plans complete (Wave 1)
 
 **Progress:**
-- ✅ Plan 05-01: Postgres Agent Foundation (Python project structure, INI/env configuration, connection pool with safety limits)
-- ✅ Plan 05-02: Data Collectors (pg_stat_activity with correlation ID extraction, pg_stat_statements with graceful degradation, lock detection, system metrics)
-- ✅ Plan 05-03: Log Parser and Transmission Layer (log rotation handling, HTTP client with circuit breaker, persistent buffer with eviction)
-- ✅ Plan 05-04: Daemon and Systemd Service (main collection loop, signal handlers, background log parsing, systemd unit with security hardening)
+- ✅ Plan 06-01: Search API with cursor pagination (filter by project, URL, duration, timestamps, source)
+- ✅ Plan 06-02: Web Dashboard HTML Foundation (Pico CSS, vanilla JavaScript, static serving)
+- ⬜ Plan 06-03: TBD
+- ⬜ Plan 06-04: TBD
 
-**Requirements Delivered:**
-- ✅ PG-01: Collect pg_stat_activity every 60 seconds
-- ✅ PG-02: Collect pg_stat_statements with graceful degradation
-- ✅ PG-03: Parse PostgreSQL log files continuously
-- ✅ PG-04: Collect system metrics (CPU, memory, disk I/O)
-- ✅ PG-05: Extract correlation ID from application_name
-- ✅ PG-06: Detect blocking queries and locks
-- ✅ PG-07: Never cause database failures or performance degradation
-- ✅ PG-COMM-01: Send data to listener via HTTP POST
-- ✅ PG-COMM-02: Local buffering for listener unavailability
-- ✅ PG-COMM-03: Include project identifier with all sent data
-- ✅ PG-COMM-04: Run as daemon service on DB server
+**Requirements Delivered So Far:**
+- ✅ QUERY-01: Web UI for searching/viewing profiling data
+- ✅ Cursor-based pagination for efficient large result sets
+- ✅ Filter by project, URL pattern, duration, timestamps, source
 
-**Next phase:** Phase 6 - Query Interface & Visualization
+**Next plan:** 06-03 (Wave 1 continuation)
 
 ## Active Work
 
-**Phase 5 COMPLETE** - All 4 plans delivered. Postgres agent is production-ready.
+**Phase 6 Wave 1 IN PROGRESS** - Building query interface and web dashboard
 
-**Next:** Phase 6 - Query Interface & Visualization
+**Completed:**
+- Plan 06-01: Search API with cursor pagination
+- Plan 06-02: Web Dashboard HTML Foundation
+
+**Next:** Continue Phase 6 Wave 1 execution
 
 ## Blockers/Concerns
 
@@ -81,6 +77,8 @@ None - Phase 5 complete. Ready to begin Phase 6 (Query Interface & Visualization
 
 ## Recent Activity
 
+- 2026-01-28: Completed plan 06-02 - Web Dashboard HTML Foundation (3 tasks, 2min 40sec)
+- 2026-01-28: Completed plan 06-01 - Search API with Cursor Pagination (3 tasks, 2min 24sec)
 - 2026-01-28: **🎉 PHASE 5 COMPLETE** - Postgres Agent Database Monitoring (4/4 plans, 11 requirements)
 - 2026-01-28: Completed plan 05-04 - Daemon and Systemd Service (3 tasks, 2min 13sec)
 - 2026-01-28: Completed plan 05-03 - Log Parser and Transmission Layer (4 tasks, 2min 9sec)
@@ -116,6 +114,11 @@ None - Phase 5 complete. Ready to begin Phase 6 (Query Interface & Visualization
 
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
+| Pico CSS over Tailwind or custom CSS | Semantic HTML styling (11KB), no build step, accessible by default, faster development | 06-02 | 2026-01-28 |
+| Vanilla JavaScript over React/Vue | No build tooling, faster load time, sufficient for CRUD interface, easier debugging | 06-02 | 2026-01-28 |
+| State management with module-scoped object | Simple pattern for single-page app, no external library needed, easy to debug | 06-02 | 2026-01-28 |
+| Static file serving with Bun.file | Bun native file serving fast, proper content-type headers, no bundler needed | 06-02 | 2026-01-28 |
+| DOM element caching in init() | Prevents repeated querySelector calls, improves performance, cleaner code | 06-02 | 2026-01-28 |
 | Structured JSON logging via structlog | JSON format enables log parsing in Graylog/ELK, ISO timestamps for correlation, structured fields queryable | 05-04 | 2026-01-28 |
 | Flush remaining logs on shutdown | Prevents losing log entries during graceful shutdown, 30s timeout allows completion | 05-04 | 2026-01-28 |
 | Config path from argv or environment | Command-line for local testing, env var for systemd, explicit argv takes precedence | 05-04 | 2026-01-28 |
@@ -223,4 +226,4 @@ None yet.
 
 ---
 
-Last activity: 2026-01-28T09:58:52Z - Completed Phase 5: Postgres Agent Database Monitoring (4/4 plans, 11 requirements)
+Last activity: 2026-01-28T10:46:57Z - Completed 06-02-PLAN.md (Web Dashboard HTML Foundation)
