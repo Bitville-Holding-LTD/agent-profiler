@@ -30,6 +30,8 @@ import { initGelfClient, getGraylogStatus } from "./graylog/client.ts";
 import { createCircuitBreaker, getCircuitBreakerStatus } from "./graylog/circuit-breaker.ts";
 import { replayUnforwardedRecords, getReplayStatus } from "./graylog/replay.ts";
 import { handleSearch, handleGetProjects, handleGetStatistics } from "./api/search.ts";
+import { handleGetStats, handleGetComparison } from "./api/stats.ts";
+import { handleGetCorrelation } from "./api/correlation.ts";
 
 // Initialize database on startup
 console.log("[Listener] Initializing database...");
@@ -213,6 +215,27 @@ const server = Bun.serve({
 
     if (req.method === "GET" && url.pathname === "/api/statistics") {
       return handleGetStatistics(req);
+    }
+
+    // Stats API (Phase 6 Wave 2)
+    if (req.method === "GET" && url.pathname === "/api/stats") {
+      return handleGetStats(req);
+    }
+
+    // Comparison API (Phase 6 Wave 2)
+    if (req.method === "GET" && url.pathname === "/api/compare") {
+      return handleGetComparison(req);
+    }
+
+    // Correlation API (Phase 6 Wave 2) - with path parameter
+    if (req.method === "GET" && url.pathname.startsWith("/api/correlation/")) {
+      const correlationId = url.pathname.replace("/api/correlation/", "");
+      if (correlationId) {
+        // Create a new URL with correlation_id as query param for consistent handling
+        const newUrl = new URL(req.url);
+        newUrl.searchParams.set("correlation_id", correlationId);
+        return handleGetCorrelation(new Request(newUrl, req));
+      }
     }
 
     // Apply rate limiting for ingest endpoints
