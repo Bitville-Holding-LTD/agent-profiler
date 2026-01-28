@@ -20,7 +20,7 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 | 2 - PHP Agent Daemon Architecture & Lifecycle | ✓ Complete | 4/4 | 100% | 7928601, deee093, 0b74996, 022b19f, 3abb8ef, e7ea204, a3cae67, 5b6c0de, faad6f5, 3038add, ff6fa38 |
 | 3 - Central Listener Data Reception & Storage | ✓ Complete | 4/4 | 100% | 410eadc, b6018b5, d01a214, 8861d6e, d862f85, 8931cfa, 1cc0629, eb5b592, 5e2a4eb, d328387, 947b3d4, 9b77fec |
 | 4 - Graylog Integration & Forwarding | ✓ Complete | 3/3 | 100% | 41a6638, 51b99d6, 333e848, 1f069a7, ba41f49, 9541cef, 573031b |
-| 5 - Postgres Agent Database Monitoring | ◆ In Progress | 1/5 | 20% | b8b6e04, f7e5d44, d03a550 |
+| 5 - Postgres Agent Database Monitoring | ◆ In Progress | 2/5 | 40% | 31bdde3, 1f7fe49, 660f5e2, b8b6e04, f7e5d44, d03a550, af8a392 |
 | 6 - Query Interface & Visualization | ○ Pending | 0/? | 0% | - |
 | 7 - Configuration & Deployment | ○ Pending | 0/? | 0% | - |
 
@@ -46,9 +46,10 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Goal:** Monitor PostgreSQL database for slow queries, locks, and system metrics
 
-**Status:** In progress - Plan 05-02 complete (data collectors)
+**Status:** In progress - Plans 05-01 and 05-02 complete
 
 **Progress:**
+- ✅ Plan 05-01: Postgres Agent Foundation (Python project structure, INI/env configuration, connection pool with safety limits)
 - ✅ Plan 05-02: Data Collectors (pg_stat_activity with correlation ID extraction, pg_stat_statements with graceful degradation, lock detection, system metrics)
 
 **Progress:**
@@ -103,6 +104,7 @@ None - Phase 5 Plan 02 complete. Data collectors ready for transmission layer (P
 ## Recent Activity
 
 - 2026-01-28: Completed plan 05-02 - Data Collectors (3 tasks, 2min 20sec)
+- 2026-01-28: Completed plan 05-01 - Postgres Agent Foundation (3 tasks, 1min 56sec)
 - 2026-01-27: **🎉 PHASE 4 COMPLETE** - Graylog Integration & Forwarding (3/3 plans, 5 requirements)
 - 2026-01-27: Completed plan 04-03 - Replay Integration and Handler Wiring (3 tasks, ~4min)
 - 2026-01-27: Completed plan 04-02 - Circuit Breaker and Forwarder (2 tasks, 2min 57sec)
@@ -134,6 +136,10 @@ None - Phase 5 Plan 02 complete. Data collectors ready for transmission layer (P
 | Decision | Rationale | Phase | Date |
 |----------|-----------|-------|------|
 | Query truncation at 1000 chars (pg_stat_statements) and 500 chars (locks) | Prevents payload bloat in transmission to central listener | 05-02 | 2026-01-28 |
+| Connection pool cap at 5 connections | Monitoring must not overwhelm database (PG-07), enforced in config loader | 05-01 | 2026-01-28 |
+| Statement timeout 5 seconds at connection level | Prevents hung queries from exhausting pool, set via connection options | 05-01 | 2026-01-28 |
+| Environment variables override INI files | Standard 12-factor pattern, enables systemd/container overrides | 05-01 | 2026-01-28 |
+| Application name 'bitville-monitor' | Enables identification in pg_stat_activity for tracking and debugging | 05-01 | 2026-01-28 |
 | Correlation ID extraction via regex bitville-([a-f0-9-]{36}) | PHP agent sets application_name to bitville-{uuid} format for request linking | 05-02 | 2026-01-28 |
 | Graceful degradation for pg_stat_statements | Check extension availability once, cache result, return empty list if unavailable | 05-02 | 2026-01-28 |
 | PostgreSQL wiki lock monitoring query | Use official community query for blocking query detection | 05-02 | 2026-01-28 |
