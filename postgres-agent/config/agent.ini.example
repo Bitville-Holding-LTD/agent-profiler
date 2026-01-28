@@ -1,0 +1,37 @@
+# Bitville PostgreSQL Monitoring Agent Configuration
+# Copy to /etc/bitville/postgres-agent.ini and customize
+
+[database]
+# PostgreSQL connection settings
+host = 5.9.121.222
+port = 5432
+name = postgres
+user = bitville_monitor
+password = <your-password-here>
+
+# Query safety limit (milliseconds) - prevents hung queries
+statement_timeout_ms = 5000
+
+[collection]
+# Collection interval in seconds (default: 60 = 1 minute)
+interval_s = 60
+
+# PostgreSQL log file path for continuous parsing
+log_path = /var/log/postgresql/postgresql-main.log
+
+[listener]
+# Central listener server URL
+url = https://88.198.22.206:8443/ingest/postgres
+
+# API key for authentication (Bearer token)
+api_key = <your-api-key-here>
+
+# Project identifier included with all data
+project_id = bitville
+
+[buffer]
+# Local buffer path for offline resilience
+path = /var/lib/bitville-postgres-agent/buffer
+
+# Maximum buffer size in MB (oldest items evicted when exceeded)
+max_size_mb = 100
